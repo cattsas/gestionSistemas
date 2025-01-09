@@ -29,6 +29,9 @@ export async function DELETE (request,{params}) {
                 id: parsedId
             }
         });
+        if (!compra){
+            return NextResponse.json(`Compra con id ${id} no encontrada`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido eliminado",compra}, {status:200});
     } catch (error) {
         console.log("Error:", error);
@@ -47,6 +50,9 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
+        if (!compra){
+            return NextResponse.json(`Compra con id ${id} no encontrada`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido actualizado",compra}, {status:200});
     } catch (error) {
         console.log("Error:", error);

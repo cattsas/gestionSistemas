@@ -29,12 +29,17 @@ export async function DELETE (request,{params}) {
                 id: parsedId
             }
         });
+        if (!articulo){
+            return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido eliminado",articulo}, {status:200});
     } catch (error) {
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al eliminar el articulo", { status: 500 });
     }
 }
+
+
 
 export async function PUT (request,{params}) {    
     const { id } =  params;  // 
@@ -47,6 +52,9 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
+        if (!articulo){
+            return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido actualizado",articulo}, {status:200});
     } catch (error) {
         console.log("Error:", error);

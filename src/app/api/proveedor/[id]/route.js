@@ -30,6 +30,9 @@ export async function DELETE (request,{params}) {
                 id: parsedId
             }
         });
+        if (!prov){
+            return NextResponse.json(`Proveedor con id ${id} no encontrado`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido eliminado",prov}, {status:200});
     } catch (error) {
         console.log("Error:", error);
@@ -48,8 +51,12 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
+        if (!prov){
+            return NextResponse.json(`Proveedor con id ${id} no encontrado`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido actualizado",prov}, {status:200});
-    } catch (error) {
+    }
+     catch (error) {
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al actualizar el proveedor", { status: 500 });
     }

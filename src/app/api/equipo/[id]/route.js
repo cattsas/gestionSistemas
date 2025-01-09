@@ -29,6 +29,9 @@ export async function DELETE (request,{params}) {
                 id: parsedId
             }
         });
+        if (!equipo){
+            return NextResponse.json(`Equipo con id ${id} no encontrado`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido eliminado",equipo}, {status:200});
     } catch (error) {
         console.log("Error:", error);
@@ -47,6 +50,9 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
+        if (!equipo){
+            return NextResponse.json(`Equipo con id ${id} no encontrado`, { status: 404 });
+        }
         return NextResponse.json({message:"El registro ha sido actualizado",equipo}, {status:200});
     } catch (error) {
         console.log("Error:", error);
