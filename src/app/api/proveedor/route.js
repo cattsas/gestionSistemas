@@ -14,10 +14,10 @@ export async function GET () {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const prov = await prisma.proveedores.create({
+        const prov = await prisma.proveedor.create({
             data: body
         });
-        return NextResponse.json(proveedores, {
+        return NextResponse.json(prov, {
             status: 201,
             headers: {
               "Content-Type": "application/json",
