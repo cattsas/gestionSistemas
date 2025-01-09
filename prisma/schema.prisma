@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model articulo {
+  id                             Int       @id @default(autoincrement())
+  id_proveedor                   Int
+  descripci_n                    String    @map("descripción") @db.VarChar(50)
+  proveedor                      proveedor @relation(fields: [id_proveedor], references: [id], onUpdate: Restrict, map: "articulo_ibfk_1")
+  entrega                        entrega[]
+  lista_lista_articuloToarticulo lista[]   @relation("lista_articuloToarticulo")
+
+  @@index([id_proveedor], map: "id_proveedor")
+}
+
+model compra {
+  id                                    Int       @id @default(autoincrement())
+  fecha                                 DateTime  @db.Date
+  lista                                 Int
+  proveedor                             Int
+  importe_total                         Float     @db.Float
+  proveedor_compra_proveedorToproveedor proveedor @relation("compra_proveedorToproveedor", fields: [proveedor], references: [id], onUpdate: Restrict, map: "compra_ibfk_1")
+  lista_lista_compraTocompra            lista[]   @relation("lista_compraTocompra")
+
+  @@index([lista], map: "id_lista")
+  @@index([proveedor], map: "proveedor")
+}
+
+model empleado {
+  id                               Int             @id @default(autoincrement())
+  nombre                           String          @db.VarChar(30)
+  sector                           String          @db.VarChar(30)
+  entrega                          entrega[]
+  equipo_equipo_empleadoToempleado equipo[]        @relation("equipo_empleadoToempleado")
+  mantenimiento                    mantenimiento[]
+}
+
+model entrega {
+  id          Int      @id @default(autoincrement())
+  id_articulo Int
+  fecha       DateTime @db.Date
+  id_empleado Int
+  articulo    articulo @relation(fields: [id_articulo], references: [id], onUpdate: Restrict, map: "entrega_ibfk_1")
+  empleado    empleado @relation(fields: [id_empleado], references: [id], onUpdate: Restrict, map: "entrega_ibfk_2")
+
+  @@index([id_articulo], map: "id_articulo")
+  @@index([id_empleado], map: "id_empleado")
+}
+
+model equipo {
+  id                                                Int           @id
+  so                                                String        @db.VarChar(30)
+  ram                                               Int
+  ip                                                String?       @db.VarChar(15)
+  empleado                                          Int
+  mantenimiento                                     Int
+  observaciones                                     String        @db.VarChar(500)
+  empleado_equipo_empleadoToempleado                empleado      @relation("equipo_empleadoToempleado", fields: [empleado], references: [id], onDelete: Cascade, map: "equipo_ibfk_1")
+  mantenimiento_equipo_mantenimientoTomantenimiento mantenimiento @relation("equipo_mantenimientoTomantenimiento", fields: [mantenimiento], references: [id], onDelete: Cascade, map: "equipo_ibfk_2")
+
+  @@index([empleado], map: "emp")
+  @@index([mantenimiento], map: "mantenimiento")
+}
+
+model lista {
+  id                                Int      @id @default(autoincrement())
+  compra                            Int
+  articulo                          Int
+  cantidad                          Int
+  precio_unitario                   Float    @db.Float
+  precio_total                      Float    @db.Float
+  articulo_lista_articuloToarticulo articulo @relation("lista_articuloToarticulo", fields: [articulo], references: [id], onUpdate: Restrict, map: "lista_ibfk_1")
+  compra_lista_compraTocompra       compra   @relation("lista_compraTocompra", fields: [compra], references: [id], onDelete: Cascade, map: "lista_ibfk_2")
+
+  @@index([compra], map: "compra")
+  @@index([articulo], map: "id_articulo")
+}
+
+model mantenimiento {
+  id                                         Int      @id
+  fecha                                      DateTime @db.Date
+  tarea                                      String   @db.VarChar(500)
+  realizo                                    Int
+  observaciones                              String   @db.VarChar(500)
+  equipo_equipo_mantenimientoTomantenimiento equipo[] @relation("equipo_mantenimientoTomantenimiento")
+  empleado                                   empleado @relation(fields: [realizo], references: [id], onDelete: Cascade, map: "mantenimiento_ibfk_1")
+
+  @@index([realizo], map: "responsable")
+}
+
+model proveedor {
+  id                                 Int        @id @default(autoincrement())
+  nombre                             String     @db.VarChar(30)
+  domicilio                          String     @db.VarChar(30)
+  telefono                           Int
+  articulo                           articulo[]
+  compra_compra_proveedorToproveedor compra[]   @relation("compra_proveedorToproveedor")
+}
