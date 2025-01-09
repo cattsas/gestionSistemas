@@ -59,7 +59,7 @@ export async function PUT(request, props) {
        
         return NextResponse.json({message:"El registro ha sido actualizado",articulo}, {status:200});
     } catch (error) {
-         // Verificar si el error es por un registro no encontrado
+         
          if (error.code === 'P2025') {
             return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
         }
