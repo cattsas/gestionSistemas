@@ -21,29 +21,32 @@ export async function GET (request,{params}) {
     }
 }
 
-export async function DELETE (request,{params}) {    
-    const  {id} =  params;  
-    const parsedId = parseInt(id); 
+export async function DELETE(request, props) {
+    const params = await props.params;
+    const  {id} =  params;
+    const parsedId = parseInt(id);
     try {
         const prov=await prisma.proveedor.delete({
             where: {
                 id: parsedId
             }
         });
-        if (!prov){
-            return NextResponse.json(`Proveedor con id ${id} no encontrado`, { status: 404 });
-        }
+        
         return NextResponse.json({message:"El registro ha sido eliminado",prov}, {status:200});
     } catch (error) {
+        if (error.code === 'P2025') {
+            return NextResponse.json(`Proveedor con id ${id} no encontrado`, { status: 404 });
+        }
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al eliminar el proveedor", { status: 500 });
     }
 }
 
-export async function PUT (request,{params}) {    
+export async function PUT(request, props) {
+    const params = await props.params;
     const { id } =  params;  // 
-    const parsedId = parseInt(id); 
-    const body = await request.json(); 
+    const parsedId = parseInt(id);
+    const body = await request.json();
     try {
         const prov=await prisma.proveedor.update({
             where: {
@@ -51,12 +54,13 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
-        if (!prov){
-            return NextResponse.json(`Proveedor con id ${id} no encontrado`, { status: 404 });
-        }
+        
         return NextResponse.json({message:"El registro ha sido actualizado",prov}, {status:200});
     }
      catch (error) {
+        if (error.code === 'P2025') {
+            return NextResponse.json(`Proveedor con id ${id} no encontrado`, { status: 404 });
+        }
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al actualizar el proveedor", { status: 500 });
     }

@@ -20,29 +20,33 @@ export async function GET (request,{params}) {
     }
 }
 
-export async function DELETE (request,{params}) {    
-    const  {id} =  params;  
-    const parsedId = parseInt(id); 
+export async function DELETE(request, props) {
+    const params = await props.params;
+    const  {id} =  params;
+    const parsedId = parseInt(id);
     try {
         const emp=await prisma.empleado.delete({
             where: {
                 id: parsedId
             }
         });
-        if (!emp){
-            return NextResponse.json(`Empleado con id ${id} no encontrado`, { status: 404 });
-        }
+        
         return NextResponse.json({message:"El registro ha sido eliminado",emp}, {status:200});
     } catch (error) {
+         // Verificar si el error es por un registro no encontrado
+         if (error.code === 'P2025') {
+            return NextResponse.json(`Empleado con id ${id} no encontrado`, { status: 404 });
+        }
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al eliminar el empleado", { status: 500 });
     }
 }
 
-export async function PUT (request,{params}) {    
+export async function PUT(request, props) {
+    const params = await props.params;
     const { id } =  params;  // 
-    const parsedId = parseInt(id); 
-    const body = await request.json(); 
+    const parsedId = parseInt(id);
+    const body = await request.json();
     try {
         const emp=await prisma.empleado.update({
             where: {
@@ -50,11 +54,13 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
-        if (!emp){
-            return NextResponse.json(`Empleado con id ${id} no encontrado`, { status: 404 });
-        }
+        
         return NextResponse.json({message:"El registro ha sido actualizado",emp}, {status:200});
     } catch (error) {
+         // Verificar si el error es por un registro no encontrado
+         if (error.code === 'P2025') {
+            return NextResponse.json(`Empleado con id ${id} no encontrado`, { status: 404 });
+        }
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al actualizar el empleado", { status: 500 });
     }

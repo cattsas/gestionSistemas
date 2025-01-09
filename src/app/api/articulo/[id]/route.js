@@ -20,20 +20,23 @@ export async function GET (request,{params}) {
     }
 }
 
-export async function DELETE (request,{params}) {    
-    const  {id} =  params;  
-    const parsedId = parseInt(id); 
+export async function DELETE(request, props) {
+    const params = await props.params;
+    const  {id} =  params;
+    const parsedId = parseInt(id);
     try {
         const articulo=await prisma.articulo.delete({
             where: {
                 id: parsedId
             }
         });
-        if (!articulo){
-            return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
-        }
+       
         return NextResponse.json({message:"El registro ha sido eliminado",articulo}, {status:200});
     } catch (error) {
+         // Verificar si el error es por un registro no encontrado
+         if (error.code === 'P2025') {
+            return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
+        }
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al eliminar el articulo", { status: 500 });
     }
@@ -41,10 +44,11 @@ export async function DELETE (request,{params}) {
 
 
 
-export async function PUT (request,{params}) {    
+export async function PUT(request, props) {
+    const params = await props.params;
     const { id } =  params;  // 
-    const parsedId = parseInt(id); 
-    const body = await request.json(); 
+    const parsedId = parseInt(id);
+    const body = await request.json();
     try {
         const articulo=await prisma.articulo.update({
             where: {
@@ -52,11 +56,13 @@ export async function PUT (request,{params}) {
             },
             data: body
         });
-        if (!articulo){
-            return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
-        }
+       
         return NextResponse.json({message:"El registro ha sido actualizado",articulo}, {status:200});
     } catch (error) {
+         // Verificar si el error es por un registro no encontrado
+         if (error.code === 'P2025') {
+            return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
+        }
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al actualizar el articulo", { status: 500 });
     }
