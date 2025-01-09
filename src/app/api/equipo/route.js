@@ -3,21 +3,21 @@ import { NextResponse } from "next/server";
 
 export async function GET () {
     try {
-        const articulos = await prisma.articulo.findMany();
-        return NextResponse.json(articulos);
+        const equipos = await prisma.equipo.findMany();
+        return NextResponse.json(equipos);
     } catch (error) {
         console.log("Error:", error);
-        return  NextResponse.json(error.message || "Error al obtener los articulos", { status: 500 });
+        return  NextResponse.json(error.message || "Error al obtener los equipos", { status: 500 });
     }
 }
 
 export async function POST(request) {
     try {
         const body = await request.json();
-        const articulo = await prisma.articulo.create({
+        const equipo = await prisma.equipo.create({
             data: body
         });
-        return NextResponse.json(articulo, {
+        return NextResponse.json(equipo, {
             status: 201,
             headers: {
               "Content-Type": "application/json",
@@ -25,6 +25,6 @@ export async function POST(request) {
           });
     } catch (error) {
         console.log("Error:", error);
-        return  NextResponse.json(error.message || "Error al crear el articulo", { status: 500 });
+        return  NextResponse.json(error.message || "Error al crear el equipo", { status: 500 });
     }
 }
