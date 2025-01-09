@@ -19,3 +19,37 @@ export async function GET (request,{params}) {
         return  NextResponse.json(error.message || "Error al obtener la entrega", { status: 500 });
     }
 }
+
+export async function DELETE (request,{params}) {    
+    const  {id} =  params;  
+    const parsedId = parseInt(id); 
+    try {
+        const ent=await prisma.entrega.delete({
+            where: {
+                id: parsedId
+            }
+        });
+        return NextResponse.json({message:"El registro ha sido eliminado",ent}, {status:200});
+    } catch (error) {
+        console.log("Error:", error);
+        return  NextResponse.json(error.message || "Error al eliminar la entrega", { status: 500 });
+    }
+}
+
+export async function PUT (request,{params}) {    
+    const { id } =  params;  // 
+    const parsedId = parseInt(id); 
+    const body = await request.json(); 
+    try {
+        const ent=await prisma.entrega.update({
+            where: {
+                id: parsedId
+            },
+            data: body
+        });
+        return NextResponse.json({message:"El registro ha sido actualizado",ent}, {status:200});
+    } catch (error) {
+        console.log("Error:", error);
+        return  NextResponse.json(error.message || "Error al actualizar la entrega", { status: 500 });
+    }
+}

@@ -19,3 +19,37 @@ export async function GET (request,{params}) {
         return  NextResponse.json(error.message || "Error al obtener el equipo", { status: 500 });
     }
 }
+
+export async function DELETE (request,{params}) {    
+    const  {id} =  params;  
+    const parsedId = parseInt(id); 
+    try {
+        const equipo=await prisma.equipo.delete({
+            where: {
+                id: parsedId
+            }
+        });
+        return NextResponse.json({message:"El registro ha sido eliminado",equipo}, {status:200});
+    } catch (error) {
+        console.log("Error:", error);
+        return  NextResponse.json(error.message || "Error al eliminar el equipo", { status: 500 });
+    }
+}
+
+export async function PUT (request,{params}) {    
+    const { id } =  params;  // 
+    const parsedId = parseInt(id); 
+    const body = await request.json(); 
+    try {
+        const equipo=await prisma.equipo.update({
+            where: {
+                id: parsedId
+            },
+            data: body
+        });
+        return NextResponse.json({message:"El registro ha sido actualizado",equipo}, {status:200});
+    } catch (error) {
+        console.log("Error:", error);
+        return  NextResponse.json(error.message || "Error al actualizar el equipo", { status: 500 });
+    }
+}
