@@ -12,14 +12,11 @@ export default function RootLayout({ children }) {
    
       <html lang="en" >
         <body className='h-screen w-screen bg-slate-50'>
-        <section className='flex flex-row h-full w-full bg-slate-50	'>
-          <article className='w-1/6'>
-            <NavLinks/>
-          </article>
-          <section className='w-5/6'>
+        
+          <section className='w-full h-full flex items-center flex-col'>
            {children}
           </section>
-        </section>
+       
    
       
         
