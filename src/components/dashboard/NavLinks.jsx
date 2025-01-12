@@ -32,21 +32,9 @@ import Link from 'next/link'
   
   export default function NavLinks() {
     return (
-      <div className='flex flex-col '>
-        <section className='bg-blue/90 h-[20vh] flex justify-center items-center rounded-md'>
-          <article className='flex flex-row hover:brightness-125 transition duration-200'>
-            <Link className='flex flex-row items-center'
-              href="/admin"
-            >
-              
-            <SketchLogoIcon className='w-10 h-10 text-myorange'></SketchLogoIcon> 
-                <p className='text-blue text-xl '>Gestion</p>
-              
-              
-            </Link>
-           </article>
-        </section>
-        <section className='md:flex flex-col bg-myblue/90 w-full h-[70vh] mt-6 rounded-md'>
+      <div className='flex flex-col'>
+        
+        <section className='md:flex flex-col bg-slate-800 opacity-80 w-full h-screen justify-center rounded-md'>
         
           {links.map((link) => {
             const LinkIcon = link.icon;
@@ -54,7 +42,7 @@ import Link from 'next/link'
               <Link
                 key={link.name}
                 href={link.href}
-                className="flex h-5vh grow text-myorange/80 items-center justify-center  text-base font-medium hover:bg-myorange/90 hover:text-myblue md:flex-none md:justify-start md:p-2 md:px-3"
+                className="flex h-5vh grow text-green-800 text-xl items-center justify-center   font-medium hover:bg-green-800 hover:text-slate-800 my-2 md:flex-none md:justify-start md:p-2 md:px-3"
               >
                 <LinkIcon className="w-6" />
                 <p className='hidden md:block'>{link.name}</p>
@@ -63,7 +51,7 @@ import Link from 'next/link'
               </Link>
             );
           })}
-            <Link href="/admin" className="mt-auto mb-1	flex h-5vh grow text-myorange/80 items-center justify-center  text-base font-medium hover:bg-myorange/90 hover:text-myblue md:flex-none md:justify-start md:p-2 md:px-3">
+            <Link href="/admin" className="mt-auto mb-1	flex h-5vh grow text-green-800 items-center justify-center  text-xl font-medium hover:bg-green-800 hover:text-slate-800 md:flex-none md:justify-start md:p-2 md:px-3">
               <ThickArrowRightIcon className="w-6"/><p className='hidden md:block'>Salir</p>
             </Link>
         </section>
