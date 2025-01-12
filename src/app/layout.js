@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
   return (
    
       <html lang="en" >
-        <body className='h-screen w-screen bg-slate-50'>
+        <body className='h-screen w-screen flex items-center justify-center bg-gradient-to-r from-green-800 to-slate-800'>
         
           <section className='w-full h-full flex items-center flex-col'>
            {children}

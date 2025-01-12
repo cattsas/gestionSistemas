@@ -4,11 +4,15 @@ export default function RootLayout({ children }) {
    
       
        
-        <section className='flex flex-row h-full w-full bg-slate-50	'>
-          <article className='w-1/6'>
-            <NavLinks/>
-          </article>
-          <section className='w-5/6'>
+        <section className='flex flex-row w-full h-screen bg-gradient-to-r from-green-800 to-slate-800	'>
+          <div className='w-1/6 h-4/5 absolute bottom-0'>
+            <article >
+              
+                <NavLinks/>
+              
+            </article>
+          </div>
+          <section className='w-screen'>
            {children}
           </section>
         </section>
