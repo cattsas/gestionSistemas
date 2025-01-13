@@ -13,7 +13,7 @@ export default async function Home() {
        
         <article className="w-full m-0 ">
                       <SideNav title="Gestion de Sistemas" />
-                </article>
+        </article>
         <main className="antialiased  h-screenflex items-center justify-center align-center flex-col m-auto">
 
           <section className='w-full max-w-md flex flex-col '>
