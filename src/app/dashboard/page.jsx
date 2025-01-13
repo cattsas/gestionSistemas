@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default async function Home() {
     
     return (
-         <article className="w-full m-0 ">
+         <article className="w-full h-screen m-0 ">
                       <SideNav title="Dashboard" />
                 </article>
     )

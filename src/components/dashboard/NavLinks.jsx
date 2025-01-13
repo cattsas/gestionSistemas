@@ -12,29 +12,33 @@ import Link from 'next/link'
     },
     {
       name: 'Articulos',
-      href: '/api/articulo',
+      href: '/dashboard/articulo',
       icon: ActivityLogIcon,
     },
     { 
       name: 'Equipos', 
-        href: '/api/equipo', 
+        href: '/dashboard/equipo', 
         icon: DesktopIcon },
     
     { 
       name: 'Compras', 
-      href: '/api/compra', 
+      href: '/dashboard/compra', 
       icon: BackpackIcon },
       { 
         name: 'Entregas', 
-        href: '/api/entrega', 
-        icon: CameraIcon }
+        href: '/dashboard/entrega', 
+        icon: CameraIcon },
+        { 
+          name: 'Proveedores', 
+          href: '/dashboard/proveedor', 
+          icon: PersonIcon },
   ];
   
   export default function NavLinks() {
     return (
       <div className='flex flex-col'>
         
-        <section className='md:flex flex-col bg-slate-800 opacity-80 w-full h-screen justify-center rounded-md'>
+        <section className='md:flex flex-col bg-slate-800 opacity-80 w-full h-screen justify-center rounded-md mb-10'>
         
           {links.map((link) => {
             const LinkIcon = link.icon;
