@@ -5,6 +5,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 
 import {
@@ -16,6 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { Button } from "@/components/ui/button"
+
 
 
 export function DataTable({
@@ -26,17 +29,19 @@ export function DataTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   return (
+    <section>
     <div className="rounded-md border">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-slate-800 opacity-80">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead className="text-gray-300" key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -72,6 +77,26 @@ export function DataTable({
           )}
         </TableBody>
       </Table>
+      
     </div>
+    <div className="flex items-center justify-end space-x-2 py-4">
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => table.previousPage()}
+      disabled={!table.getCanPreviousPage()}
+    >
+      Previous
+    </Button>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => table.nextPage()}
+      disabled={!table.getCanNextPage()}
+    >
+      Next
+    </Button>
+  </div>
+  </section>
   )
 }

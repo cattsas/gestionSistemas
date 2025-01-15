@@ -1,8 +1,26 @@
 import SideNav from "@/components/dashboard/SideNav"
-export default function articulos() {
+
+import GenerateTable from "@/lib/generateTable";
+
+ // Función para verificar si una cadena es una fecha en formato ISO
+
+export default async function articulos() {
+    
     return (
-        <article className="w-full h-screen m-0 ">
-            <SideNav title="Proveedores" />
-        </article>
+        <>
+        <section className="flex flex-col">
+          <article className="w-full ">
+              <SideNav title="Articulos" />
+          </article>
+        
+
+          <article className="flex justify-center ">   
+            <div className="w-full mx-auto ">
+                <GenerateTable url='http://localhost:3000/api/proveedor'/>
+            </div>
+          </article>
+        </section>
+       
+        </>
     )
-}
+}   

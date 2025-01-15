@@ -9,13 +9,13 @@ export default async function articulos() {
     return (
         <>
         <section className="flex flex-col">
-          <article className="w-full mb-10 ">
+          <article className="w-full ">
               <SideNav title="Articulos" />
           </article>
         
 
           <article className="flex justify-center ">   
-            <div className="container mx-auto py-10">
+            <div className="w-full mx-auto ">
                 <GenerateTable url='http://localhost:3000/api/articulo'/>
             </div>
           </article>

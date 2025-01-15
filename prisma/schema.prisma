@@ -10,7 +10,7 @@ datasource db {
 model articulo {
   id                             Int       @id @default(autoincrement())
   id_proveedor                   Int
-  descripci_n                    String    @map("descripción") @db.VarChar(50)
+  descripcion                    String    @db.VarChar(50)
   proveedor                      proveedor @relation(fields: [id_proveedor], references: [id], onUpdate: Restrict, map: "articulo_ibfk_1")
   entrega                        entrega[]
   lista_lista_articuloToarticulo lista[]   @relation("lista_articuloToarticulo")
