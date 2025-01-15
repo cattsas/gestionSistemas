@@ -55,7 +55,7 @@ import Link from 'next/link'
               </Link>
             );
           })}
-            <Link href="/admin" className="mt-auto mb-1	flex h-5vh grow text-green-800 items-center justify-center  text-xl font-medium hover:bg-green-800 hover:text-slate-800 md:flex-none md:justify-start md:p-2 md:px-3">
+            <Link href="/" className="mt-auto mb-1	flex h-5vh grow text-green-800 items-center justify-center  text-xl font-medium hover:bg-green-800 hover:text-slate-800 md:flex-none md:justify-start md:p-2 md:px-3">
               <ThickArrowRightIcon className="w-6"/><p className='hidden md:block'>Salir</p>
             </Link>
         </section>
