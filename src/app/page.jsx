@@ -33,7 +33,7 @@ export default async function Home() {
               </article>
             </section>
             <div className="flex justify-center mt-10">
-              <Link href='/admin/dashboard' className='inline-flex'>
+              <Link href='/dashboard' className='inline-flex'>
                 <Button type='submit' variant="outline" className="text-wrap text-gray-600 hover:bg-gray-600">Ingresar</Button>
               </Link>
             </div>

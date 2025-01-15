@@ -1,4 +1,5 @@
-import { HomeIcon,BackpackIcon,CameraIcon,PersonIcon, ActivityLogIcon, SketchLogoIcon, ThickArrowRightIcon, DesktopIcon} from '@radix-ui/react-icons'
+import { HomeIcon,BackpackIcon,CameraIcon,ArchiveIcon, PersonIcon, ActivityLogIcon, SketchLogoIcon, ThickArrowRightIcon, DesktopIcon} from '@radix-ui/react-icons'
+
 import Link from 'next/link'
 
 
@@ -24,14 +25,18 @@ import Link from 'next/link'
       name: 'Compras', 
       href: '/dashboard/compra', 
       icon: BackpackIcon },
-      { 
-        name: 'Entregas', 
-        href: '/dashboard/entrega', 
-        icon: CameraIcon },
-        { 
-          name: 'Proveedores', 
-          href: '/dashboard/proveedor', 
-          icon: PersonIcon },
+    { 
+      name: 'Entregas', 
+      href: '/dashboard/entrega', 
+      icon: ArchiveIcon },
+    { 
+      name: 'Proveedores', 
+      href: '/dashboard/proveedor', 
+      icon: PersonIcon },
+    { 
+      name: 'Empleados', 
+      href: '/dashboard/empleado', 
+      icon: PersonIcon },
   ];
   
   export default function NavLinks() {

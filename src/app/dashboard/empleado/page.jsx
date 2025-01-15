@@ -16,7 +16,7 @@ export default async function articulos() {
 
           <article className="flex justify-center ">   
             <div className="w-full mx-auto ">
-                <GenerateTable url='http://localhost:3000/api/entrega'/>
+                <GenerateTable url='http://localhost:3000/api/empleado'/>
             </div>
           </article>
         </section>

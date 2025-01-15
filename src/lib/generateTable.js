@@ -53,7 +53,7 @@ export default async function GenerateTable({url}) {
   return (
       <div>
         
-        <div className="container mx-auto py-10">
+        <div className="container mt-20">
             <DataTable columns={columns} data={formattedData} />
         </div>
   
