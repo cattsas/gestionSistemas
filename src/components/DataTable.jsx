@@ -1,4 +1,17 @@
 "use client"
+import { MoreHorizontal } from "lucide-react"
+import Link from 'next/link'
+import { EyeIcon, EyeOpenIcon, EyeClosedIcon, TrashIcon } from '@radix-ui/react-icons'
+
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import {
   ColumnDef,
@@ -31,6 +44,42 @@ export function DataTable({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
+
+  if (!columns.some((col) => col.id === "actions")) {//si ya existe la columna acciones, no vuelve a agregarla
+    columns.push ({//agrego columna de acciones
+      id: "actions",
+      header:"Acciones",
+      cell: ({ row }) => {
+        const payment = row.original
+   
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+            <DropdownMenuLabel className="flex justify-center">Acciones</DropdownMenuLabel>
+              <DropdownMenuItem className="flex justify-center">
+                <Link href='#' className='flex items-center'>
+                   Ver<EyeOpenIcon/>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="flex justify-center">
+                Borrar<TrashIcon/>
+                </DropdownMenuItem>
+             
+            </DropdownMenuContent>
+          </DropdownMenu>
+        
+      
+    
+        )
+      },
+    })}
 
   return (
     <section>

@@ -101,3 +101,9 @@ model proveedor {
   articulo                           articulo[]
   compra_compra_proveedorToproveedor compra[]   @relation("compra_proveedorToproveedor")
 }
+
+model usuario {
+  id      Int    @id @default(autoincrement())
+  usuario String @unique(map: "usuario") @db.VarChar(30)
+  pass    String @db.VarChar(80)
+}
