@@ -41,7 +41,7 @@ export async function GET () {
         const entregas=entregasPorArticulo.find(item=>item.id_articulo===articulo.id);
         const stockRestante=(compras?compras._sum.cantidad:0)-(entregas?entregas._count.id:0);
         return{
-          articuloId:articulo.id,
+          
           articuloDescripcion:articulo.descripcion,
           stockRestante,
         };
