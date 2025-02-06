@@ -15,6 +15,9 @@ import generateColumns from"@/lib/generateColumns"
   
   
   function formatData(data) {
+    console.log("DATA:",data);
+    if (!Array.isArray(data)) {
+      throw new Error("Expected data to be an array");}
     return data.map(item => {
       const formattedItem = { ...item };
       for (const key in formattedItem) {

@@ -1,26 +1,34 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server"; 
+import  getStockRestante  from "@/lib/calcStock";
 
 export async function GET () {
     try {
         const articulos = await prisma.articulo.findMany({
         select: { 
-            id: true,
+            
+            id:true,
             descripcion:true,
             proveedor:{
                select: {
                 nombre:true
+              
            }
         },
        
         },
         });
-        const formattedArticulos = articulos.map(articulo => ({
+            const  formattedArticulos =await Promise.all( articulos.map( async (articulo) => {
+                console.log ("Articulo:", articulo.id);
+            const cantidad =  await getStockRestante(articulo.id); 
+          
+            return{   
             id: articulo.id,
             descripcion:articulo.descripcion,
-            proveedor: articulo.proveedor.nombre
+            proveedor: articulo.proveedor.nombre,
+            Stock: cantidad,
+        }
         }));
-        console.log (formattedArticulos);
         return NextResponse.json((formattedArticulos));
     } catch (error) {
         console.log("Error:", error);
