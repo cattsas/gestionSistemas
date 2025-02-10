@@ -19,7 +19,7 @@ export async function GET () {
         },
         });
             const  formattedArticulos =await Promise.all( articulos.map( async (articulo) => {
-                console.log ("Articulo:", articulo.id);
+                console.log ("Articulosss:", articulos);
             const cantidad =  await getStockRestante(articulo.id); 
           
             return{   

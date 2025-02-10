@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button"
 export function DataTable({
   columns,
   data,
+  url
 }) {
   const table = useReactTable({
     data,
@@ -44,14 +45,14 @@ export function DataTable({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
-
+  
   if (!columns.some((col) => col.id === "actions")) {//si ya existe la columna acciones, no vuelve a agregarla
     columns.push ({//agrego columna de acciones
       id: "actions",
       header:"Acciones",
       cell: ({ row }) => {
         const payment = row.original
-   
+       
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -63,7 +64,7 @@ export function DataTable({
             <DropdownMenuContent align="end">
             <DropdownMenuLabel className="flex justify-center">Acciones</DropdownMenuLabel>
               <DropdownMenuItem className="flex justify-center">
-                <Link href='#' className='flex items-center'>
+                <Link  href={`${url}/${row.original.id}`} className='flex items-center'>
                    Ver<EyeOpenIcon/>
                 </Link>
               </DropdownMenuItem>
