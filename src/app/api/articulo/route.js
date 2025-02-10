@@ -31,7 +31,7 @@ export async function GET () {
         }));
         return NextResponse.json((formattedArticulos));
     } catch (error) {
-        console.log("Error:", error);
+        
         return  NextResponse.json(error.message || "Error al obtener los articulos", { status: 500 });
     }
 }
@@ -49,7 +49,7 @@ export async function POST(request) {
             }
           });
     } catch (error) {
-        console.log("Error:", error);
+       
         return  NextResponse.json(error.message || "Error al crear el articulo", { status: 500 });
     }
 }

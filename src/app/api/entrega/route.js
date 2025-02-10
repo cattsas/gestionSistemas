@@ -33,10 +33,10 @@ export async function GET () {
                 }
                 }));
 
-        console.log("Entregassssss:", entregas);
+       
         return NextResponse.json(formatEntregas);
     } catch (error) {
-        console.log("Error:", error);
+       
         return  NextResponse.json(error.message || "Error al obtener las entregas", { status: 500 });
     }
 }
@@ -54,7 +54,6 @@ export async function POST(request) {
             }
           });
     } catch (error) {
-        console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al crear la entrega", { status: 500 });
     }
 }
