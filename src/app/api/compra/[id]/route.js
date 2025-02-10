@@ -1,11 +1,12 @@
 import prisma from "@/lib/prisma";  
 import { NextResponse } from "next/server";
 
-export async function GET (request,{params}) {    
+export async function GET (request,{params}) {   
+    
     const { id } = await params;  // Esto puede ser innecesario si params no es asíncrono
     const parsedId = parseInt(id); 
     try {
-        const compra=await prisma.lista.findMany({
+        const items=await prisma.lista.findMany({
             where:{
                 compra:
                     parsedId
@@ -20,7 +21,7 @@ export async function GET (request,{params}) {
                     },
                     cantidad: true,
                     precio_unitario: true,
-                    precio_total: true,
+                    
                     compra_lista_compraTocompra: {
                       select: {
                         id: true,
@@ -36,27 +37,36 @@ export async function GET (request,{params}) {
                   }
             
         });
+        let suma=0;
+        const formatItems= await Promise.all( items.map( async (item) => {
+            const precio_total = item.cantidad * item.precio_unitario;
+            suma+=precio_total;
 
-        const formatCompra= await Promise.all( compra.map( async (compra) => {
             return {
-                id: compra.id,
-                fecha: compra.compra_lista_compraTocompra.fecha,
-                proveedor: compra.compra_lista_compraTocompra.proveedor_compra_proveedorToproveedor.nombre,
-                articulo: compra.articulo_lista_articuloToarticulo.descripcion,
-                cantidad: compra.cantidad,
-                precio_unitario: compra.precio_unitario,
-                precio_total: compra.precio_total,
-                importe_total: compra.compra_lista_compraTocompra.importe_total
+                id: item.id,
+                articulo: item.articulo_lista_articuloToarticulo.descripcion,
+                cantidad: item.cantidad,
+                precio_unitario: item.precio_unitario,
+                precio_total: precio_total
+                
             };
             }));
 
-        console.log("Comprasssssss:", formatCompra.proveedor);
-        if (!formatCompra){
+       
+        if (!formatItems || formatItems.length === 0) {
             return NextResponse.json(`Compra con id ${id} no encontrada`, { status: 404 });
         }
-        return NextResponse.json(formatCompra);
+
+        const result ={
+            fecha: items[0].compra_lista_compraTocompra.fecha,
+            proveedor: items[0].compra_lista_compraTocompra.proveedor_compra_proveedorToproveedor.nombre,
+            items:formatItems,
+            total: suma,
+
+        }
+        return NextResponse.json(result);
     } catch (error) {
-        console.log("Error:", error);
+       
         return  NextResponse.json(error.message || "Error al obtener la compra", { status: 500 });
     }
 }
@@ -78,7 +88,7 @@ export async function DELETE(request, props) {
          if (error.code === 'P2025') {
             return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
         }
-        console.log("Error:", error);
+        
         return  NextResponse.json(error.message || "Error al eliminar la compra", { status: 500 });
     }
 }
@@ -102,7 +112,7 @@ export async function PUT(request, props) {
          if (error.code === 'P2025') {
             return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
         }
-        console.log("Error:", error);
+      
         return  NextResponse.json(error.message || "Error al actualizar la compra", { status: 500 });
     }
 }
