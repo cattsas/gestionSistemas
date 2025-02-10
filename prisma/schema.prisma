@@ -15,7 +15,7 @@ model articulo {
   entrega                        entrega[]
   lista_lista_articuloToarticulo lista[]   @relation("lista_articuloToarticulo")
 
-  @@index([id_proveedor], map: "id_proveedor")
+  @@index([id_proveedor], map: "id_proveedor_index")
 }
 
 model compra {

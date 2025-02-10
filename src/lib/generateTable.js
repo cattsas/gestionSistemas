@@ -15,7 +15,7 @@ import generateColumns from"@/lib/generateColumns"
   
   
   function formatData(data) {
-    console.log("DATA:",data);
+   
     if (!Array.isArray(data)) {
       throw new Error("Expected data to be an array");}
     return data.map(item => {
@@ -44,7 +44,7 @@ export default async function GenerateTable({url}) {
   
    // Formatear los datos
    const formattedData = formatData(properties);
- 
+  
   
    // Genera columnas dinámicamente usando funcion generateColumns
   const columns = generateColumns(properties);
@@ -57,7 +57,7 @@ export default async function GenerateTable({url}) {
       <div>
         
         <div className="container mt-20">
-            <DataTable columns={columns} data={formattedData} />
+            <DataTable url={url} columns={columns} data={formattedData} />
         </div>
   
       </div>

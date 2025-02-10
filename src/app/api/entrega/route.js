@@ -3,8 +3,38 @@ import { NextResponse } from "next/server";
 
 export async function GET () {
     try {
-        const entregas = await prisma.entrega.findMany();
-        return NextResponse.json(entregas);
+        const entregas = await prisma.entrega.findMany({
+            select: { 
+               id:true,
+               articulo:{
+                    select:{
+                        descripcion:true
+                    }
+                },
+                fecha:true,
+                empleado:{
+                    select: {
+                     nombre:true
+                    }
+                }
+            },
+        });
+
+        const formatEntregas= await Promise.all( entregas.map( async (entrega) => {
+                        
+                    
+                  
+                    return{   
+                    id: entrega.id,
+                    articulo:entrega.articulo.descripcion,
+                    fecha:entrega.fecha,
+                    empleado: entrega.empleado.nombre,
+                   
+                }
+                }));
+
+        console.log("Entregassssss:", entregas);
+        return NextResponse.json(formatEntregas);
     } catch (error) {
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al obtener las entregas", { status: 500 });

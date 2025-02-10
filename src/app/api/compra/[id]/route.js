@@ -5,15 +5,56 @@ export async function GET (request,{params}) {
     const { id } = await params;  // Esto puede ser innecesario si params no es asíncrono
     const parsedId = parseInt(id); 
     try {
-        const compra=await prisma.compra.findUnique({
-            where: {
-                id: parsedId
-            }
+        const compra=await prisma.lista.findMany({
+            where:{
+                compra:
+                    parsedId
+             } ,
+            
+                select: {
+                    id: true,
+                    articulo_lista_articuloToarticulo: {
+                        select: {
+                            descripcion: true
+                        }
+                    },
+                    cantidad: true,
+                    precio_unitario: true,
+                    precio_total: true,
+                    compra_lista_compraTocompra: {
+                      select: {
+                        id: true,
+                        fecha: true,
+                        proveedor_compra_proveedorToproveedor: {
+                          select: {
+                            nombre: true
+                          }
+                        },
+                        importe_total: true
+                      }
+                    }
+                  }
+            
         });
-        if (!compra){
+
+        const formatCompra= await Promise.all( compra.map( async (compra) => {
+            return {
+                id: compra.id,
+                fecha: compra.compra_lista_compraTocompra.fecha,
+                proveedor: compra.compra_lista_compraTocompra.proveedor_compra_proveedorToproveedor.nombre,
+                articulo: compra.articulo_lista_articuloToarticulo.descripcion,
+                cantidad: compra.cantidad,
+                precio_unitario: compra.precio_unitario,
+                precio_total: compra.precio_total,
+                importe_total: compra.compra_lista_compraTocompra.importe_total
+            };
+            }));
+
+        console.log("Comprasssssss:", formatCompra.proveedor);
+        if (!formatCompra){
             return NextResponse.json(`Compra con id ${id} no encontrada`, { status: 404 });
         }
-        return NextResponse.json(compra);
+        return NextResponse.json(formatCompra);
     } catch (error) {
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al obtener la compra", { status: 500 });
