@@ -16,6 +16,7 @@ export async function POST(request) {
         const body = await request.json();
 
         const precioTotal = body.cantidad * body.precio_unitario;
+        console.log("Precio Total:", precioTotal);
         const detalle = await prisma.lista.create({
             data:{ ...body,
                 precio_total: precioTotal

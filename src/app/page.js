@@ -1,5 +1,5 @@
 
-import Login from '@/templates/loginTemplate';
+import Login from '@/templates/forms/loginTemplate';
 
 
 
