@@ -105,7 +105,7 @@ export async function PUT(request, props) {
             },
             data: body
         });
-       
+       console.log("Compra:", compra);
         return NextResponse.json({message:"El registro ha sido actualizado",compra}, {status:200});
     } catch (error) {
          // Verificar si el error es por un registro no encontrado

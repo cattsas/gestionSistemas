@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";  
 import { NextResponse } from "next/server";
+import getStockRestante  from "@/lib/calcStock";
 
 export async function GET (request,{params}) {    
     const { id } = await params;  // Esto puede ser innecesario si params no es asíncrono
@@ -8,12 +9,35 @@ export async function GET (request,{params}) {
         const articulo=await prisma.articulo.findUnique({
             where: {
                 id: parsedId
-            }
+            },
+            select: { 
+            
+                id:true,
+                descripcion:true,
+                proveedor:{
+                   select: {
+                    nombre:true
+                  
+               }
+            },
+           
+            },
         });
         if (!articulo){
             return NextResponse.json(`Articulo con id ${id} no encontrado`, { status: 404 });
         }
-        return NextResponse.json(articulo);
+        const cantidad =  await getStockRestante(articulo.id); 
+        const  formattedArticulo =
+                        
+                  
+                   {   
+                    id: articulo.id,
+                    descripcion:articulo.descripcion,
+                    proveedor: articulo.proveedor.nombre,
+                    Stock: cantidad,
+                }
+                
+                return NextResponse.json((formattedArticulo));
     } catch (error) {
         console.log("Error:", error);
         return  NextResponse.json(error.message || "Error al obtener el articulo", { status: 500 });

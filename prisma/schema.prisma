@@ -8,14 +8,15 @@ datasource db {
 }
 
 model articulo {
-  id                             Int       @id @default(autoincrement())
+  id                             Int                @id @default(autoincrement())
   id_proveedor                   Int
-  descripcion                    String    @db.VarChar(50)
-  proveedor                      proveedor @relation(fields: [id_proveedor], references: [id], onUpdate: Restrict, map: "articulo_ibfk_1")
+  categoria                      articulo_categoria
+  descripcion                    String             @db.VarChar(50)
+  proveedor                      proveedor          @relation(fields: [id_proveedor], references: [id], onUpdate: Restrict, map: "articulo_ibfk_1")
   entrega                        entrega[]
-  lista_lista_articuloToarticulo lista[]   @relation("lista_articuloToarticulo")
+  lista_lista_articuloToarticulo lista[]            @relation("lista_articuloToarticulo")
 
-  @@index([id_proveedor], map: "id_proveedor_index")
+  @@index([id_proveedor], map: "id_proveedor")
 }
 
 model compra {
@@ -53,15 +54,16 @@ model entrega {
 }
 
 model equipo {
-  id                                                Int           @id
-  so                                                String        @db.VarChar(30)
+  id                                                Int            @id
+  so                                                String?        @db.VarChar(30)
   ram                                               Int
-  ip                                                String?       @db.VarChar(15)
-  empleado                                          Int
-  mantenimiento                                     Int
-  observaciones                                     String        @db.VarChar(500)
-  empleado_equipo_empleadoToempleado                empleado      @relation("equipo_empleadoToempleado", fields: [empleado], references: [id], onDelete: Cascade, map: "equipo_ibfk_1")
-  mantenimiento_equipo_mantenimientoTomantenimiento mantenimiento @relation("equipo_mantenimientoTomantenimiento", fields: [mantenimiento], references: [id], onDelete: Cascade, map: "equipo_ibfk_2")
+  ip                                                String?        @db.VarChar(15)
+  empleado                                          Int?
+  mantenimiento                                     Int?
+  observaciones                                     String?        @db.VarChar(500)
+  tipo                                              equipo_tipo
+  empleado_equipo_empleadoToempleado                empleado?      @relation("equipo_empleadoToempleado", fields: [empleado], references: [id], onDelete: Cascade, map: "equipo_ibfk_1")
+  mantenimiento_equipo_mantenimientoTomantenimiento mantenimiento? @relation("equipo_mantenimientoTomantenimiento", fields: [mantenimiento], references: [id], onDelete: Cascade, map: "equipo_ibfk_2")
 
   @@index([empleado], map: "emp")
   @@index([mantenimiento], map: "mantenimiento")
@@ -74,8 +76,8 @@ model lista {
   cantidad                          Int
   precio_unitario                   Float    @db.Float
   precio_total                      Float    @db.Float
-  articulo_lista_articuloToarticulo articulo @relation("lista_articuloToarticulo", fields: [articulo], references: [id], onUpdate: Restrict, map: "lista_ibfk_1")
   compra_lista_compraTocompra       compra   @relation("lista_compraTocompra", fields: [compra], references: [id], onDelete: Cascade, map: "lista_ibfk_2")
+  articulo_lista_articuloToarticulo articulo @relation("lista_articuloToarticulo", fields: [articulo], references: [id], onDelete: Cascade, map: "lista_ibfk_1")
 
   @@index([compra], map: "compra")
   @@index([articulo], map: "id_articulo")
@@ -106,4 +108,21 @@ model usuario {
   id      Int    @id @default(autoincrement())
   usuario String @unique(map: "usuario") @db.VarChar(30)
   pass    String @db.VarChar(80)
+}
+
+enum equipo_tipo {
+  PC
+  Impresora
+  Notebook
+  Otros
+}
+
+enum articulo_categoria {
+  fuentes
+  mothers
+  gabinetes
+  monitores
+  memorias
+  discos
+  otros
 }
