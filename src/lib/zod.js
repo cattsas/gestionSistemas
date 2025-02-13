@@ -1,5 +1,4 @@
 import { number, object, string } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 export const artFormSchema = object({
   proveedor: string()
