@@ -27,7 +27,8 @@ import {
 
 import obtenerCategorias from "@/lib/getCategories";
 
-export default function ArtForm() {
+export default function ArtForm(props) {
+  console.log(props);
   const [categorias, setCategorias] = useState([]);
 
   // Fetch categories from the endpoint
@@ -53,12 +54,13 @@ export default function ArtForm() {
   const form = useForm({
     resolver: zodResolver(artFormSchema),
     defaultValues: {
-      proveedor: "",
-      descripcion: "",
-      categoria: "",
+      proveedor: props.data.proveedor,
+      descripcion: props.data.descripcion,
+      categoria: props.data.categoria,
       cantidad: "",
     },
   });
+  console.log(form.getValues());
 
   return (
     <Form {...form}>
@@ -116,6 +118,7 @@ export default function ArtForm() {
                   </SelectContent>
                 </Select>
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -126,11 +129,9 @@ export default function ArtForm() {
             <FormItem>
               <FormLabel>Cantidad</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                />
+                <Input type="number" {...field} readOnly>
+                  {props.data.cantidad}
+                </Input>
               </FormControl>
               <FormMessage />
             </FormItem>

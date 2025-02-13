@@ -2,7 +2,7 @@ import SideNav from "@/components/dashboard/SideNav";
 import GenerateTable from "@/lib/generateTable";
 import { Button } from "@/components/ui/button";
 
-export default function TemplateLayout({ title, url }) {
+export default function TemplateLayout({ title, end }) {
   return (
     <section className="flex flex-col">
       <article className="w-full">
@@ -18,7 +18,7 @@ export default function TemplateLayout({ title, url }) {
           >
             Agregar
           </Button>
-          <GenerateTable url={url} />
+          <GenerateTable end={end} />
         </div>
       </article>
     </section>
