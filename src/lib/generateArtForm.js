@@ -1,6 +1,6 @@
 import ArtForm from "@/templates/forms/ArtForm";
 
-export default async function GenerateForm({ url }) {
+export default async function GenerateArtForm({ url }) {
   const res = await fetch(url, {
     method: "GET",
     headers: {
