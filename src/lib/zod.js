@@ -11,5 +11,5 @@ export const artFormSchema = object({
 
   categoria: string().min(1, { message: "Categoria no puede estar vacio." }),
 
-  cantidad: number().min(1, { message: "Cantidad no puede estar vacio." }),
+  cantidad: number(),
 });

@@ -1,10 +1,11 @@
 // pages/api/categorias.js
 import prisma from "@/lib/prisma";
+import { articulo_categoria } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET(req, res) {
   try {
-    // Obtener los valores del enum 'categoria' de la tabla 'articulo'
+    /*   // Obtener los valores del enum 'categoria' de la tabla 'articulo'
     const result =
       await prisma.$queryRaw`SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
     WHERE TABLE_NAME = 'articulo' AND COLUMN_NAME = 'categoria'`;
@@ -13,10 +14,12 @@ export async function GET(req, res) {
     const enumValues = result[0].COLUMN_TYPE.replace("enum(", "")
       .replace(")", "")
       .split(",")
-      .map((value) => value.replace("'", "").replace("'", ""));
+      .map((value) => value.replace("'", "").replace("'", ""));*/
 
+    const categorias = Object.values(articulo_categoria);
+    console.log(categorias);
     // Enviar el resultado como respuesta en formato JSON
-    return NextResponse.json(enumValues);
+    return NextResponse.json(categorias);
   } catch (error) {
     // Log para mostrar el error completo en la consola
     console.error("Error al obtener las categorías:", error);

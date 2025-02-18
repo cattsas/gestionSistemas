@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -57,20 +58,23 @@ export default function ArtForm(props) {
       proveedor: props.data.proveedor,
       descripcion: props.data.descripcion,
       categoria: props.data.categoria,
-      cantidad: "",
+      cantidad: props.data.Stock,
     },
   });
   console.log(form.getValues());
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 w-1/2 m-auto  "
+      >
         <FormField
           control={form.control}
           name="proveedor"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Proveedor</FormLabel>
+              <FormLabel className="text-xl">Proveedor</FormLabel>
               <FormControl>
                 <Input type="text" {...field} />
               </FormControl>
@@ -83,9 +87,9 @@ export default function ArtForm(props) {
           name="descripcion"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Descripcion</FormLabel>
+              <FormLabel className="text-xl">Descripcion</FormLabel>
               <FormControl>
-                <Input type="text" {...field} />
+                <Textarea {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,7 +100,9 @@ export default function ArtForm(props) {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="tipo">Categoría</FormLabel>
+              <FormLabel className="text-xl" htmlFor="tipo">
+                Categoría
+              </FormLabel>
 
               <FormControl>
                 <Select
@@ -126,8 +132,8 @@ export default function ArtForm(props) {
           control={form.control}
           name="cantidad"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cantidad</FormLabel>
+            <FormItem className="w-1/4">
+              <FormLabel className="text-xl">Cantidad</FormLabel>
               <FormControl>
                 <Input type="number" {...field} readOnly>
                   {props.data.cantidad}

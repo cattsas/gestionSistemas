@@ -1,6 +1,6 @@
 import ArtForm from "@/templates/forms/ArtForm";
 import SideNav from "@/components/dashboard/SideNav";
-import GenerateForm from "@/lib/generateArtForm";
+import GenerateArtForm from "@/lib/generateArtForm";
 
 export default async function Home({ params }) {
   const { id } = await params;
@@ -12,7 +12,7 @@ export default async function Home({ params }) {
         <SideNav title="Articulo" />
       </article>
 
-      <GenerateForm url={url} />
+      <GenerateArtForm url={url} />
     </div>
   );
 }
