@@ -26,23 +26,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import obtenerCategorias from "@/lib/getCategories";
+import obtenerEnum from "@/lib/getEnums";
 
 export default function ArtForm(props) {
   console.log(props);
   const [categorias, setCategorias] = useState([]);
 
   // Fetch categories from the endpoint
+  const [cats, setCats] = useState([]);
+  const [equipos, setEquipos] = useState([]);
+
   useEffect(() => {
-    async function fetchCategorias() {
-      try {
-        const data = await obtenerCategorias();
-        setCategorias(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    }
-    fetchCategorias();
+    obtenerEnum("articulo_categoria").then((cats) => {
+      obtenerEnum("equipo_tipo").then((eq) => {
+        setCats(cats);
+        setEquipos(eq);
+      });
+    });
   }, []);
 
   // 2. Define a submit handler.
@@ -107,18 +107,17 @@ export default function ArtForm(props) {
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                   id="cat"
                   name="categoria"
                 >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Categoría" />
+                    <SelectValue placeholder="Seleccione categoría" />
                   </SelectTrigger>
 
                   <SelectContent>
-                    {categorias.map((categoria, index) => (
-                      <SelectItem key={index} value={categoria}>
-                        {categoria}
+                    {cats.map((cat, index) => (
+                      <SelectItem key={index} value={cat}>
+                        {cat}
                       </SelectItem>
                     ))}
                   </SelectContent>
