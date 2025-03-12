@@ -31,7 +31,11 @@ function formatData(data) {
 }
 
 export default async function GenerateTable({ end }) {
-  const api = `http://localhost:3000/api/${end}`;
+  const api =
+    typeof window === "undefined" // Si estamos en el servidor
+      ? `http://localhost:3000/api/${end}` // Usa la URL completa en producción
+      : `/api/${end}`; // Usa ruta relativa en el cliente
+
   const res = await fetch(api, {
     method: "GET",
     headers: {

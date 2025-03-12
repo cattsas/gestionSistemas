@@ -35,6 +35,7 @@ export default function ArtForm(props) {
   // Fetch categories from the endpoint
   const [cats, setCats] = useState([]);
   const [equipos, setEquipos] = useState([]);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     obtenerEnum("articulo_categoria").then((cats) => {
@@ -55,10 +56,10 @@ export default function ArtForm(props) {
   const form = useForm({
     resolver: zodResolver(artFormSchema),
     defaultValues: {
-      proveedor: props.data.proveedor,
-      descripcion: props.data.descripcion,
-      categoria: props.data.categoria,
-      cantidad: props.data.Stock,
+      proveedor: props.data.proveedor || "",
+      descripcion: props.data.descripcion || "",
+      categoria: props.data.categoria || "",
+      cantidad: props.data.Stock || 0,
     },
   });
   console.log(form.getValues());
@@ -134,9 +135,12 @@ export default function ArtForm(props) {
             <FormItem className="w-1/4">
               <FormLabel className="text-xl">Cantidad</FormLabel>
               <FormControl>
-                <Input type="number" {...field} readOnly>
-                  {props.data.cantidad}
-                </Input>
+                <Input
+                  type="number"
+                  {...field}
+                  value={props.data.cantidad || 0}
+                  readOnly
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
