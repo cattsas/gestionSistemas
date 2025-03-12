@@ -11,13 +11,6 @@ export default function TemplateLayout({ title, end }) {
 
       <article className="flex justify-center">
         <div className="w-full mx-auto">
-          <Button
-            type="submit"
-            variant="outline"
-            className="text-gray-600 hover:bg-gray-300"
-          >
-            Agregar
-          </Button>
           <GenerateTable end={end} />
         </div>
       </article>

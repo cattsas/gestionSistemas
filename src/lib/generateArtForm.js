@@ -1,22 +1,32 @@
+// app/lib/generateArtForm.jsx
 import ArtForm from "@/templates/forms/ArtForm";
 
-export default async function GenerateArtForm({ url }) {
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    cache: "force-cache",
-  });
+// Este componente se convierte en un componente del servidor
+export default async function GenerateArtForm({ data, url }) {
+  let formData = data;
 
-  const property = await res.json();
-  console.log(property);
+  // Si se pasa una URL, hacemos una solicitud para obtener los datos del artículo
+  if (url) {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  // Limpia la cadena antes de dividirla
+    // Asegúrate de manejar posibles errores de red
+    if (!res.ok) {
+      throw new Error("No se pudo obtener el artículo");
+    }
 
+    // Si la solicitud fue exitosa, obtenemos los datos
+    formData = await res.json();
+  }
+
+  // Renderizamos el formulario con los datos obtenidos o los datos vacíos
   return (
     <div className="container mx-auto py-10">
-      <ArtForm data={property} />
+      <ArtForm data={formData} />
     </div>
   );
 }
