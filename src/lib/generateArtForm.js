@@ -2,8 +2,9 @@
 import ArtForm from "@/templates/forms/ArtForm";
 
 // Este componente se convierte en un componente del servidor
-export default async function GenerateArtForm({ data, url }) {
+export default async function GenerateArtForm({ data, url, isCreateMode }) {
   let formData = data;
+  console.log("Creating:", isCreateMode);
 
   // Si se pasa una URL, hacemos una solicitud para obtener los datos del artículo
   if (url) {
@@ -26,7 +27,7 @@ export default async function GenerateArtForm({ data, url }) {
   // Renderizamos el formulario con los datos obtenidos o los datos vacíos
   return (
     <div className="container mx-auto py-10">
-      <ArtForm data={formData} />
+      <ArtForm data={formData} isCreateMode={isCreateMode} />
     </div>
   );
 }

@@ -29,7 +29,7 @@ import {
 import obtenerEnum from "@/lib/getEnums";
 
 export default function ArtForm(props) {
-  console.log(props);
+  const { data, isCreateMode } = props;
   const [categorias, setCategorias] = useState([]);
 
   // Fetch categories from the endpoint
@@ -47,11 +47,15 @@ export default function ArtForm(props) {
   }, []);
 
   // 2. Define a submit handler.
-  function onSubmit(values, categorias) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+
+  //console.log(isCreateMode ? values : cambios);
+  // Estado para manejar si el formulario está en modo de edición
+  const [isEditMode, setIsEditMode] = useState(isCreateMode);
+
+  // Función para alternar el modo edición
+  const toggleEditMode = () => {
+    setIsEditMode((prev) => !prev);
+  };
   // 1. Define your form.
   const form = useForm({
     resolver: zodResolver(artFormSchema),
@@ -63,6 +67,27 @@ export default function ArtForm(props) {
     },
   });
   console.log(form.getValues());
+  const { watch, formState } = form;
+  const { dirtyFields } = formState; // Contiene solo los campos modificados
+  const currentValues = watch();
+
+  // Filtramos solo los campos que han cambiado
+  const cambios = Object.keys(dirtyFields).reduce((acc, key) => {
+    acc[key] = currentValues[key];
+    return acc;
+  }, {});
+  async function onSubmit(values, categorias) {
+    const url = isCreateMode
+      ? `http://localhost:3000/api/articulo/`
+      : `http://localhost:3000/api/articulo/${data.id}`;
+    const method = isCreateMode ? "POST" : "PUT";
+
+    await fetch(url, {
+      method: method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(isCreateMode ? values : cambios),
+    });
+  }
 
   return (
     <Form {...form}>
@@ -70,14 +95,28 @@ export default function ArtForm(props) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 w-1/2 m-auto  "
       >
+        {/* Botón para cambiar entre modo edición y vista */}
+        {!isCreateMode && (
+          <button onClick={toggleEditMode}>
+            {isEditMode ? "Modo Lectura" : "Modo Edición"}
+          </button>
+        )}
         <FormField
           control={form.control}
           name="proveedor"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-xl">Proveedor</FormLabel>
+              <FormLabel className="text-xl" htmlFor="proveedor">
+                Proveedor
+              </FormLabel>
               <FormControl>
-                <Input type="text" {...field} />
+                <Input
+                  type="text"
+                  id="proveedor"
+                  {...field}
+                  value={field.value}
+                  readOnly={!isEditMode}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,9 +127,16 @@ export default function ArtForm(props) {
           name="descripcion"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-xl">Descripcion</FormLabel>
+              <FormLabel className="text-xl" htmlFor="descripcion">
+                Descripcion
+              </FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea
+                  {...field}
+                  value={field.value}
+                  readOnly={!isEditMode}
+                  id="descripcion"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -104,48 +150,62 @@ export default function ArtForm(props) {
               <FormLabel className="text-xl" htmlFor="tipo">
                 Categoría
               </FormLabel>
+              {isEditMode ? (
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value} // Usa el valor actual del campo
+                    id="tipo"
+                    name="categoria"
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Seleccione categoría" />
+                    </SelectTrigger>
 
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  id="cat"
-                  name="categoria"
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Seleccione categoría" />
-                  </SelectTrigger>
+                    <SelectContent>
+                      {cats.map((cat, index) => (
+                        <SelectItem key={index} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+              ) : (
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <FormControl>
+                    <Input {...field} readOnly={!isEditMode} id="tipo" />
+                  </FormControl>
+                </div>
+              )}
 
-                  <SelectContent>
-                    {cats.map((cat, index) => (
-                      <SelectItem key={index} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="cantidad"
-          render={({ field }) => (
-            <FormItem className="w-1/4">
-              <FormLabel className="text-xl">Cantidad</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  {...field}
-                  value={props.data.cantidad || 0}
-                  readOnly
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!isCreateMode && (
+          <FormField
+            control={form.control}
+            name="cantidad"
+            render={({ field }) => (
+              <FormItem className="w-1/4">
+                <FormLabel className="text-xl" htmlFor="cantidad">
+                  Cantidad
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    id="cantidad"
+                    {...field}
+                    value={props.data.cantidad || 0}
+                    readOnly
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <Button type="submit">Submit</Button>
       </form>
     </Form>

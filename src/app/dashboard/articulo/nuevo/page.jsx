@@ -15,7 +15,7 @@ export default function articuloNuevo() {
         <SideNav title="Cargar artículo" />
       </article>
       {/* Pasa el objeto vacío para crear un artículo */}
-      <GenerateArtForm data={emptyData} />
+      <GenerateArtForm data={emptyData} isCreateMode={true} />
     </div>
   );
 }
