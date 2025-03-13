@@ -37,6 +37,22 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function DataTable({ columns, data, end }) {
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/${end}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        console.log("Elemento eliminado correctamente");
+        window.location.reload(); // Recarga la página
+      } else {
+        console.error("Error al eliminar el elemento");
+      }
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  };
   const table = useReactTable({
     data,
     columns,
@@ -73,7 +89,10 @@ export function DataTable({ columns, data, end }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex justify-center">
+              <DropdownMenuItem
+                className="flex justify-center"
+                onClick={() => handleDelete(row.original.id)}
+              >
                 Borrar
                 <TrashIcon />
               </DropdownMenuItem>
