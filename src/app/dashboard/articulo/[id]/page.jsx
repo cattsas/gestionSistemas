@@ -12,7 +12,7 @@ export default async function Home({ params }) {
         <SideNav title="Articulo" />
       </article>
 
-      <GenerateArtForm url={url} />
+      <GenerateArtForm url={url} isCreateMode={false} />
     </div>
   );
 }

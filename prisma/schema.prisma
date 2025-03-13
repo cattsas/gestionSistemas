@@ -10,8 +10,8 @@ datasource db {
 model articulo {
   id                             Int                @id @default(autoincrement())
   id_proveedor                   Int
-  categoria                      articulo_categoria
   descripcion                    String             @db.VarChar(50)
+  categoria                      articulo_categoria
   proveedor                      proveedor          @relation(fields: [id_proveedor], references: [id], onUpdate: Restrict, map: "articulo_ibfk_1")
   entrega                        entrega[]
   lista_lista_articuloToarticulo lista[]            @relation("lista_articuloToarticulo")
@@ -97,7 +97,7 @@ model mantenimiento {
 
 model proveedor {
   id                                 Int        @id @default(autoincrement())
-  nombre                             String     @db.VarChar(30)
+  nombre                             String     @unique(map: "nombre") @db.VarChar(30)
   domicilio                          String     @db.VarChar(30)
   telefono                           Int
   articulo                           articulo[]
