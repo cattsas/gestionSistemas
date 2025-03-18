@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import {
@@ -35,6 +36,16 @@ import {
 } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export function DataTable({ columns, data, end }) {
   const handleDelete = async (id) => {
@@ -45,6 +56,27 @@ export function DataTable({ columns, data, end }) {
 
       if (response.ok) {
         console.log("Elemento eliminado correctamente");
+        const handleDelete = async (id) => {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/api/${end}/${id}`,
+              {
+                method: "DELETE",
+              }
+            );
+
+            if (response.ok) {
+              console.log("Elemento eliminado correctamente");
+              setIsDialogOpen(false);
+              window.location.reload(); // Recarga la página
+            } else {
+              console.error("Error al eliminar el elemento");
+            }
+          } catch (error) {
+            console.error("Error en la solicitud:", error);
+          }
+        };
+
         window.location.reload(); // Recarga la página
       } else {
         console.error("Error al eliminar el elemento");
@@ -53,6 +85,7 @@ export function DataTable({ columns, data, end }) {
       console.error("Error en la solicitud:", error);
     }
   };
+
   const table = useReactTable({
     data,
     columns,
@@ -89,13 +122,49 @@ export function DataTable({ columns, data, end }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="flex justify-center"
-                onClick={() => handleDelete(row.original.id)}
-              >
-                Borrar
-                <TrashIcon />
-              </DropdownMenuItem>
+              <Dialog>
+                <DropdownMenuItem
+                  className="flex justify-center"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <DialogTrigger asChild>
+                    <div className="flex items-center">
+                      Borrar
+                      <TrashIcon />
+                    </div>
+                  </DialogTrigger>
+                </DropdownMenuItem>
+
+                <DialogContent className="flex flex-col items-center p-4">
+                  <DialogHeader>
+                    <DialogTitle className="flex justify-center">
+                      Confirmación
+                    </DialogTitle>
+                    <DialogDescription>
+                      ¿Está seguro de que desea eliminar el registro?
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <DialogFooter>
+                    <div className="flex justify-center space-x-8">
+                      {/* El botón "Sí" llama a la función de eliminar y luego cierra el diálogo */}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => handleDelete(row.original.id)} // Confirmar eliminación
+                      >
+                        Sí
+                      </Button>
+                      <DialogClose asChild>
+                        {/* El botón "No" solo cierra el diálogo */}
+                        <Button type="button" variant="secondary">
+                          No
+                        </Button>
+                      </DialogClose>
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -157,7 +226,7 @@ export function DataTable({ columns, data, end }) {
       </div>
       <section className="flex items-center justify-around ">
         <div className="flex items-center justify-start  py-4">
-          <Link href="http://localhost:3000/dashboard/articulo/nuevo">
+          <Link href={`http://localhost:3000/dashboard/${end}/nuevo`}>
             <Button type="submit" variant="outline" size="sm">
               Agregar
             </Button>

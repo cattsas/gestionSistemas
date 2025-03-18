@@ -78,6 +78,7 @@ export async function PUT(request, props) {
   const { id } = params; //
   const parsedId = parseInt(id);
   const body = await request.json();
+
   try {
     const articulo = await prisma.articulo.update({
       where: {

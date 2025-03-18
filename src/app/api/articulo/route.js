@@ -13,6 +13,7 @@ export async function GET() {
             nombre: true,
           },
         },
+        categoria: true,
       },
     });
     const formattedArticulos = await Promise.all(
@@ -23,6 +24,7 @@ export async function GET() {
         return {
           id: articulo.id,
           descripcion: articulo.descripcion,
+          categoria: articulo.categoria,
           proveedor: articulo.proveedor.nombre,
           Stock: cantidad,
         };
