@@ -197,7 +197,7 @@ export default function ArtForm(props) {
                     type="number"
                     id="cantidad"
                     {...field}
-                    value={props.data.cantidad || 0}
+                    value={field.value || 0}
                     readOnly
                   />
                 </FormControl>

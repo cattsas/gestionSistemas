@@ -80,11 +80,33 @@ export async function PUT(request, props) {
   const body = await request.json();
 
   try {
+    // Verificamos si el proveedor está en el cuerpo de la solicitud
+    if (body.proveedor) {
+      // Buscamos el proveedor por su nombre
+      const proveedor = await prisma.proveedor.findUnique({
+        where: {
+          nombre: body.proveedor, // Utilizamos el nombre del proveedor
+        },
+      });
+
+      if (!proveedor) {
+        return NextResponse.json(
+          `Proveedor con nombre ${body.proveedor} no encontrado`,
+          { status: 404 }
+        );
+      }
+
+      // Actualizamos el artículo con el ID del proveedor encontrado
+      body.id_proveedor = proveedor.id; // Asignamos el ID del proveedor al artículo
+      delete body.proveedor; // Eliminamos el campo proveedor del cuerpo para evitar duplicados
+    }
+
+    // Actualizamos el artículo en la base de datos
     const articulo = await prisma.articulo.update({
       where: {
-        id: parsedId,
+        id: parsedId, // Usamos el ID del artículo
       },
-      data: body,
+      data: body, // Usamos los datos del cuerpo para actualizar el artículo
     });
 
     return NextResponse.json(
