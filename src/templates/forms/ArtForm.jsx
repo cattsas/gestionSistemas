@@ -1,9 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { artFormSchema } from "@/lib/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -27,6 +28,16 @@ import {
 } from "@/components/ui/select";
 
 import obtenerEnum from "@/lib/getEnums";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export default function ArtForm(props) {
   const { data, isCreateMode } = props;
@@ -37,6 +48,8 @@ export default function ArtForm(props) {
   const [equipos, setEquipos] = useState([]);
   const [editMode, setEditMode] = useState(false);
 
+  const dialogRef = useRef(); // Crear el ref para el Dialog
+
   useEffect(() => {
     obtenerEnum("articulo_categoria").then((cats) => {
       obtenerEnum("equipo_tipo").then((eq) => {
@@ -46,9 +59,6 @@ export default function ArtForm(props) {
     });
   }, []);
 
-  // 2. Define a submit handler.
-
-  //console.log(isCreateMode ? values : cambios);
   // Estado para manejar si el formulario está en modo de edición
   const [isEditMode, setIsEditMode] = useState(isCreateMode);
 
@@ -66,7 +76,7 @@ export default function ArtForm(props) {
       cantidad: props.data.Stock || 0,
     },
   });
-  console.log(form.getValues());
+
   const { watch, formState } = form;
   const { dirtyFields } = formState; // Contiene solo los campos modificados
   const currentValues = watch();
@@ -76,17 +86,31 @@ export default function ArtForm(props) {
     acc[key] = currentValues[key];
     return acc;
   }, {});
-  async function onSubmit(values, categorias) {
+
+  async function onSubmit(values) {
     const url = isCreateMode
       ? `http://localhost:3000/api/articulo/`
       : `http://localhost:3000/api/articulo/${data.id}`;
     const method = isCreateMode ? "POST" : "PUT";
 
-    await fetch(url, {
-      method: method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(isCreateMode ? values : cambios),
-    });
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(isCreateMode ? values : cambios),
+      });
+
+      if (response.ok) {
+        // Mostrar el diálogo directamente usando el ref
+
+        // Redirigir después de un submit exitoso
+        window.location.href = "/dashboard/articulo"; // Redirigir a la URL deseada
+      } else {
+        console.log("Error en el submit", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error al enviar el formulario:", error);
+    }
   }
 
   return (
@@ -95,9 +119,13 @@ export default function ArtForm(props) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 w-1/2 m-auto  "
       >
-        {/* Botón para cambiar entre modo edición y vista */}
         {!isCreateMode && (
-          <button onClick={toggleEditMode}>
+          <button
+            onClick={(e) => {
+              e.preventDefault(); // Evita que se dispare el submit
+              toggleEditMode();
+            }}
+          >
             {isEditMode ? "Modo Lectura" : "Modo Edición"}
           </button>
         )}
@@ -154,7 +182,7 @@ export default function ArtForm(props) {
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value} // Usa el valor actual del campo
+                    value={field.value}
                     id="tipo"
                     name="categoria"
                   >
@@ -208,6 +236,24 @@ export default function ArtForm(props) {
         )}
         <Button type="submit">Submit</Button>
       </form>
+      {/* Dialog de éxito */}
+
+      {/*}   <Dialog ref={dialogRef}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. Are you sure you want to permanently
+              delete this file from our servers?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button>Cerrar</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>*/}
     </Form>
   );
 }
