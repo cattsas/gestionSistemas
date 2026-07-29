@@ -1,55 +1,29 @@
 import prisma from "@/lib/prisma";
 
-export default async function getStockRestante(id) {
-  const parsedId = parseInt(id); // Asegúrate de que el id esté en formato numérico
-  try {
-    // Obtener las compras agrupadas por artículo y sumar las cantidades
-    const comprado = await prisma.lista.groupBy({
-      by: ['articulo'],
-      where: {
-        articulo: parsedId
-      },
-      _sum: {
-        cantidad: true, // Sumar las cantidades para cada artículo
-      },
-    });
+/**
+ * Stock de todos los articulos en 2 consultas.
+ *
+ * Antes se hacia una funcion por articulo dentro de un map, y cada llamada
+ * disparaba 3 consultas: con N articulos eran 3N viajes a la base.
+ */
+export async function getStockMap() {
+  const [comprado, entregado] = await Promise.all([
+    prisma.lista.groupBy({ by: ["articulo"], _sum: { cantidad: true } }),
+    prisma.entrega.groupBy({ by: ["id_articulo"], _count: { id: true } }),
+  ]);
 
-    // Obtener las entregas agrupadas por artículo y contar los registros de entrega
-    const entregas = await prisma.entrega.groupBy({
-      by: ['id_articulo'],
-      where: {
-        id_articulo: parsedId
-      },
-      _count: {
-        id: true, // Contar el número de entregas por cada artículo
-      },
-    });
-
-    // Obtener el detalle del artículo
-    const articulo = await prisma.articulo.findUnique({
-      where: {
-        id: parsedId
-      },
-      select: {
-        id: true,
-        descripcion: true, // Aquí puedes incluir otros campos si lo prefieres
-      },
-    });
-
-    // Si no se encuentra el artículo, devolver un valor nulo o un error
-    if (!articulo) {
-      throw new Error(`Articulo con id ${parsedId} no encontrado`);
-    }
-
-    // Calcular el stock restante para el artículo
-    const compras = comprado.find(item => item.articulo === articulo.id);
-    const entregados = entregas.find(item => item.id_articulo === articulo.id);
-    const stockRestante = (compras ? compras._sum.cantidad : 0) - (entregados ? entregados._count.id : 0);
-
-    // Devolver solo la cantidad de stock restante
-    return stockRestante || 0;
-  } catch (error) {
-    
-    throw new Error(error.message || "Error al obtener el stock del artículo");
+  const stock = new Map();
+  for (const c of comprado) stock.set(c.articulo, c._sum.cantidad ?? 0);
+  for (const e of entregado) {
+    stock.set(e.id_articulo, (stock.get(e.id_articulo) ?? 0) - e._count.id);
   }
+  return stock;
 }
+
+/** Stock de un articulo puntual. Un articulo sin movimientos da 0, no error. */
+export async function getStockRestante(id) {
+  const stock = await getStockMap();
+  return stock.get(id) ?? 0;
+}
+
+export default getStockRestante;
