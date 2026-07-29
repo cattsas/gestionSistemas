@@ -11,7 +11,7 @@ export default function TemplateLayout({ title, end }) {
 
       <article className="flex justify-center">
         <div className="w-full mx-auto">
-          <GenerateTable end={end} />
+          <GenerateTable end={end} title={title} />
         </div>
       </article>
     </section>

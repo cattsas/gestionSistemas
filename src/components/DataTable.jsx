@@ -47,7 +47,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-export function DataTable({ columns, data, end }) {
+export function DataTable({ columns, data, end, emptyMessage = "No results." }) {
   const handleDelete = async (id) => {
     try {
       const response = await fetch(`http://localhost:3000/api/${end}/${id}`, {
@@ -217,7 +217,7 @@ export function DataTable({ columns, data, end }) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             )}

@@ -14,7 +14,8 @@ function formatDate(value) {
 
 function formatData(data) {
   if (!Array.isArray(data)) {
-    throw new Error("Expected data to be an array");
+    console.error("Se esperaba un array pero se recibió:", data);
+    return [];
   }
   return data.map((item) => {
     const formattedItem = { ...item };
@@ -30,7 +31,7 @@ function formatData(data) {
   });
 }
 
-export default async function GenerateTable({ end }) {
+export default async function GenerateTable({ end, title }) {
   const api =
     typeof window === "undefined" // Si estamos en el servidor
       ? `http://localhost:3000/api/${end}` // Usa la URL completa en producción
@@ -54,7 +55,12 @@ export default async function GenerateTable({ end }) {
   return (
     <div>
       <div className="container mt-20">
-        <DataTable end={end} columns={columns} data={formattedData} />
+        <DataTable
+          end={end}
+          columns={columns}
+          data={formattedData}
+          emptyMessage={title ? `No hay ${title.toLowerCase()} en stock` : "No hay registros"}
+        />
       </div>
     </div>
   );
