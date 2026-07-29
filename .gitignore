@@ -44,3 +44,6 @@ backup_*.sql
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# configuracion local de sesiones del asistente
+.claude/
