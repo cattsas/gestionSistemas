@@ -32,6 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# backups de base de datos
+*.sql.bak
+backup_*.sql
 
 # vercel
 .vercel
