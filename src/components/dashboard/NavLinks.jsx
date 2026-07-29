@@ -48,7 +48,7 @@ export default function NavLinks() {
   ];
 
   return (
-    <nav className="flex flex-col bg-slate-800 opacity-90 w-full h-screen rounded-md py-4">
+    <nav className="flex h-full w-full flex-col rounded-md bg-slate-800 opacity-90 py-4">
       {links.map(({ name, href, Icon }) => {
         const activo = pathname === href || pathname.startsWith(`${href}/`);
         return (

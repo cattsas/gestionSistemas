@@ -50,15 +50,10 @@ export default function Login() {
   };
 
   return (
-    <>
-      <article className="w-full m-0 ">
-        <PageTitle title="Gestion de Sistemas" />
-      </article>
+    <div className="flex h-screen w-full flex-col items-center justify-center">
+      <PageTitle title="Gestion de Sistemas" />
 
-      <form
-        onSubmit={handleSubmit}
-        className="antialiased flex h-screen items-center justify-center flex-col m-auto"
-      >
+      <form onSubmit={handleSubmit} className="antialiased flex w-full flex-col items-center">
         <section className="w-full max-w-md flex flex-col ">
           <h1 className="text-4xl text-gray-300 font-bold text-center">
             Iniciar Sesión
@@ -126,6 +121,6 @@ export default function Login() {
           </div>
         </section>
       </form>
-    </>
+    </div>
   );
 }
