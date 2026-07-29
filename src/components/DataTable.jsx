@@ -1,13 +1,16 @@
 "use client";
-import { useState } from "react";
-import { MoreHorizontal } from "lucide-react";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal } from "lucide-react";
+import { EyeOpenIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import {
-  EyeIcon,
-  EyeOpenIcon,
-  EyeClosedIcon,
-  TrashIcon,
-} from "@radix-ui/react-icons";
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 import {
   DropdownMenu,
@@ -17,15 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getPaginationRowModel,
-} from "@tanstack/react-table";
-
 import {
   Table,
   TableBody,
@@ -34,189 +28,158 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 
-export function DataTable({ columns, data, end, emptyMessage = "No results." }) {
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/${end}/${id}`, {
-        method: "DELETE",
-      });
+const moneda = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" });
 
-      if (response.ok) {
-        console.log("Elemento eliminado correctamente");
-        const handleDelete = async (id) => {
-          try {
-            const response = await fetch(
-              `http://localhost:3000/api/${end}/${id}`,
-              {
-                method: "DELETE",
-              }
-            );
+/** Formato de celda segun el tipo declarado en el descriptor de la entidad. */
+function formatear(valor, tipo) {
+  if (valor === null || valor === undefined || valor === "") return "—";
 
-            if (response.ok) {
-              console.log("Elemento eliminado correctamente");
-              setIsDialogOpen(false);
-              window.location.reload(); // Recarga la página
-            } else {
-              console.error("Error al eliminar el elemento");
-            }
-          } catch (error) {
-            console.error("Error en la solicitud:", error);
-          }
-        };
-
-        window.location.reload(); // Recarga la página
-      } else {
-        console.error("Error al eliminar el elemento");
-      }
-    } catch (error) {
-      console.error("Error en la solicitud:", error);
+  switch (tipo) {
+    case "date": {
+      // Llega como YYYY-MM-DD. Se parte a mano en lugar de usar new Date()
+      // para no arrastrar el corrimiento de zona horaria.
+      const [a, m, d] = String(valor).split("-");
+      return d ? `${d}/${m}/${a}` : String(valor);
     }
-  };
+    case "float":
+      return moneda.format(Number(valor));
+    default:
+      return String(valor);
+  }
+}
+
+export function DataTable({ columns, data, end, emptyMessage = "No hay registros" }) {
+  const router = useRouter();
+  const [aBorrar, setABorrar] = useState(null);
+  const [borrando, setBorrando] = useState(false);
+  const [errorBorrado, setErrorBorrado] = useState(null);
+
+  // Los columnDef reales se construyen aca y no llegan por props: una funcion
+  // `cell` no sobrevive el pasaje de Server Component a Client Component.
+  const columnDefs = useMemo(() => {
+    const base = columns.map((col) => ({
+      accessorKey: col.accessorKey,
+      header: col.header,
+      cell: ({ row }) => formatear(row.original[col.accessorKey], col.type),
+    }));
+
+    base.push({
+      id: "actions",
+      header: "Acciones",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Abrir menú</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link href={`/dashboard/${end}/${row.original.id}`} className="flex items-center gap-2">
+                <EyeOpenIcon /> Ver
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/dashboard/${end}/${row.original.id}?editar=1`}
+                className="flex items-center gap-2"
+              >
+                <Pencil1Icon /> Editar
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="flex items-center gap-2 text-red-600 focus:text-red-600"
+              onSelect={(e) => {
+                e.preventDefault();
+                setErrorBorrado(null);
+                setABorrar(row.original);
+              }}
+            >
+              <TrashIcon /> Borrar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    });
+
+    return base;
+  }, [columns, end]);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columnDefs,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  if (!columns.some((col) => col.id === "actions")) {
-    //si ya existe la columna acciones, no vuelve a agregarla
-    columns.push({
-      //agrego columna de acciones
-      id: "actions",
-      header: "Acciones",
-      cell: ({ row }) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="flex justify-center">
-                Acciones
-              </DropdownMenuLabel>
-              <DropdownMenuItem className="flex justify-center">
-                <Link
-                  href={`http://localhost:3000/dashboard/${end}/${row.original.id}`}
-                  className="flex items-center"
-                >
-                  Ver
-                  <EyeOpenIcon />
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <Dialog>
-                <DropdownMenuItem
-                  className="flex justify-center"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <DialogTrigger asChild>
-                    <div className="flex items-center">
-                      Borrar
-                      <TrashIcon />
-                    </div>
-                  </DialogTrigger>
-                </DropdownMenuItem>
+  async function confirmarBorrado() {
+    if (!aBorrar) return;
+    setBorrando(true);
+    setErrorBorrado(null);
+    try {
+      const res = await fetch(`/api/${end}/${aBorrar.id}`, { method: "DELETE" });
+      const body = await res.json().catch(() => null);
 
-                <DialogContent className="flex flex-col items-center p-4">
-                  <DialogHeader>
-                    <DialogTitle className="flex justify-center">
-                      Confirmación
-                    </DialogTitle>
-                    <DialogDescription>
-                      ¿Está seguro de que desea eliminar el registro?
-                    </DialogDescription>
-                  </DialogHeader>
+      if (!res.ok) {
+        // El servidor explica por que no se puede (por ejemplo, 409 si hay
+        // registros relacionados). Antes esto solo iba a la consola.
+        setErrorBorrado(body?.error?.message ?? "No se pudo eliminar el registro");
+        return;
+      }
 
-                  <DialogFooter>
-                    <div className="flex justify-center space-x-8">
-                      {/* El botón "Sí" llama a la función de eliminar y luego cierra el diálogo */}
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => handleDelete(row.original.id)} // Confirmar eliminación
-                      >
-                        Sí
-                      </Button>
-                      <DialogClose asChild>
-                        {/* El botón "No" solo cierra el diálogo */}
-                        <Button type="button" variant="secondary">
-                          No
-                        </Button>
-                      </DialogClose>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    });
+      setABorrar(null);
+      router.refresh();
+    } catch {
+      setErrorBorrado("No se pudo contactar al servidor");
+    } finally {
+      setBorrando(false);
+    }
   }
 
   return (
     <section>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
-          <TableHeader className="bg-slate-800 opacity-80">
+          <TableHeader className="bg-slate-800 opacity-90">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead className="text-gray-300" key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead className="text-gray-200" key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columnDefs.length || 1} className="h-24 text-center">
                   {emptyMessage}
                 </TableCell>
               </TableRow>
@@ -224,16 +187,18 @@ export function DataTable({ columns, data, end, emptyMessage = "No results." }) 
           </TableBody>
         </Table>
       </div>
-      <section className="flex items-center justify-around ">
-        <div className="flex items-center justify-start  py-4">
-          <Link href={`http://localhost:3000/dashboard/${end}/nuevo`}>
-            <Button type="submit" variant="outline" size="sm">
-              Agregar
-            </Button>
-          </Link>
-        </div>
 
-        <div className="flex items-center justify-end space-x-2 py-4">
+      <section className="flex items-center justify-between py-4">
+        <Link href={`/dashboard/${end}/nuevo`}>
+          <Button type="button" variant="outline" size="sm">
+            Agregar
+          </Button>
+        </Link>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount() || 1}
+          </span>
           <Button
             variant="outline"
             size="sm"
@@ -252,6 +217,46 @@ export function DataTable({ columns, data, end, emptyMessage = "No results." }) 
           </Button>
         </div>
       </section>
+
+      <Dialog
+        open={aBorrar !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto && !borrando) {
+            setABorrar(null);
+            setErrorBorrado(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar eliminación</DialogTitle>
+            <DialogDescription>
+              ¿Está seguro de que desea eliminar el registro #{aBorrar?.id}? Esta acción no se
+              puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+
+          {errorBorrado && (
+            <p className="text-sm text-red-600" role="alert">
+              {errorBorrado}
+            </p>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setABorrar(null)}
+              disabled={borrando}
+            >
+              Cancelar
+            </Button>
+            <Button type="button" variant="destructive" onClick={confirmarBorrado} disabled={borrando}>
+              {borrando ? "Eliminando…" : "Eliminar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

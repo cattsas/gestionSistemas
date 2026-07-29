@@ -1,67 +1,35 @@
+import { notFound } from "next/navigation";
 import { DataTable } from "@/components/DataTable";
-import generateColumns from "@/lib/generateColumns";
+import { getEntity } from "@/lib/entities";
+import { columnsFor } from "@/lib/entities/helpers";
+import { list } from "@/lib/services/crud";
 
-// Función para verificar si una cadena es una fecha en formato ISO
-function isISODateString(value) {
-  const regex = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)$/;
-  return typeof value === "string" && regex.test(value);
-}
+/**
+ * Tabla de una entidad.
+ *
+ * Antes hacia fetch a http://localhost:3000/api/... desde el servidor: eso
+ * fijaba el host, agregaba un viaje HTTP innecesario y se habria roto al
+ * activar el middleware, porque un fetch server-side no lleva la cookie.
+ * Ahora llama directo a la capa de servicio.
+ */
+export default async function GenerateTable({ end }) {
+  const entity = getEntity(end);
+  if (!entity) notFound();
 
-// Función para formatear fechas
-function formatDate(value) {
-  return new Date(value).toLocaleDateString("es-ES"); // Ajusta el formato según tus necesidades
-}
+  const data = await list(end);
 
-function formatData(data) {
-  if (!Array.isArray(data)) {
-    console.error("Se esperaba un array pero se recibió:", data);
-    return [];
-  }
-  return data.map((item) => {
-    const formattedItem = { ...item };
-    for (const key in formattedItem) {
-      if (
-        formattedItem.hasOwnProperty(key) &&
-        isISODateString(formattedItem[key])
-      ) {
-        formattedItem[key] = formatDate(formattedItem[key]);
-      }
-    }
-    return formattedItem;
-  });
-}
-
-export default async function GenerateTable({ end, title }) {
-  const api =
-    typeof window === "undefined" // Si estamos en el servidor
-      ? `http://localhost:3000/api/${end}` // Usa la URL completa en producción
-      : `/api/${end}`; // Usa ruta relativa en el cliente
-
-  const res = await fetch(api, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-  const properties = await res.json();
-
-  // Formatear los datos
-  const formattedData = formatData(properties);
-
-  // Genera columnas dinámicamente usando funcion generateColumns
-  const columns = generateColumns(properties);
+  // Sin adjetivo a proposito: "cargados" no concuerda con los femeninos
+  // (entregas, compras, lineas de compra).
+  const emptyMessage = `No hay ${entity.label.many.toLowerCase()} para mostrar`;
 
   return (
-    <div>
-      <div className="container mt-20">
-        <DataTable
-          end={end}
-          columns={columns}
-          data={formattedData}
-          emptyMessage={title ? `No hay ${title.toLowerCase()} en stock` : "No hay registros"}
-        />
-      </div>
+    <div className="container mt-10">
+      <DataTable
+        end={end}
+        columns={columnsFor(entity)}
+        data={data}
+        emptyMessage={emptyMessage}
+      />
     </div>
   );
 }

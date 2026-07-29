@@ -1,7 +1,7 @@
 "use client";
 import { EyeOpenIcon, EyeClosedIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import SideNav from "@/components/dashboard/SideNav";
+import PageTitle from "@/components/dashboard/PageTitle";
 
 import { useState } from "react";
 
@@ -50,7 +50,7 @@ export default function Login() {
   return (
     <>
       <article className="w-full m-0 ">
-        <SideNav title="Gestion de Sistemas" />
+        <PageTitle title="Gestion de Sistemas" />
       </article>
 
       <form
