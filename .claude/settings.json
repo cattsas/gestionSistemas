@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:PATH = \"C:\\\\Users\\\\Cristian\\\\AppData\\\\Local\\\\nodejs-portable;$env:PATH\"; node \"C:\\\\Users\\\\Cristian\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Cristian-Desktop-gestionSistemas\\\\a9d030ab-98f4-43d7-be90-0b7274ff1382\\\\scratchpad\\\\auth.mjs\" 2>&1 | Out-File -FilePath \"C:\\\\Users\\\\Cristian\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Cristian-Desktop-gestionSistemas\\\\a9d030ab-98f4-43d7-be90-0b7274ff1382\\\\scratchpad\\\\auth-out.txt\" -Encoding utf8)",
+      "PowerShell($env:PATH = \"C:\\\\Users\\\\Cristian\\\\AppData\\\\Local\\\\nodejs-portable;$env:PATH\"; node \"C:\\\\Users\\\\Cristian\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Cristian-Desktop-gestionSistemas\\\\a9d030ab-98f4-43d7-be90-0b7274ff1382\\\\scratchpad\\\\ui.mjs\" 2>&1 | Select-Object -Last 3)",
+      "Bash(git commit -q -m ' *)"
+    ]
+  }
+}

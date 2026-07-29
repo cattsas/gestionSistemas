@@ -50,7 +50,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center">
+    <div className="flex h-screen w-full flex-col items-center justify-center overflow-hidden">
       <PageTitle title="Gestion de Sistemas" />
 
       <form onSubmit={handleSubmit} className="antialiased flex w-full flex-col items-center">
