@@ -45,10 +45,9 @@ export default async function getStockRestante(id) {
     const compras = comprado.find(item => item.articulo === articulo.id);
     const entregados = entregas.find(item => item.id_articulo === articulo.id);
     const stockRestante = (compras ? compras._sum.cantidad : 0) - (entregados ? entregados._count.id : 0);
-    
 
     // Devolver solo la cantidad de stock restante
-    return stockRestante;
+    return stockRestante || 0;
   } catch (error) {
     
     throw new Error(error.message || "Error al obtener el stock del artículo");

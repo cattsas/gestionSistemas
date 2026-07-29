@@ -32,8 +32,9 @@ export async function GET() {
     );
     return NextResponse.json(formattedArticulos);
   } catch (error) {
+    console.error("Error en GET /api/articulo:", error);
     return NextResponse.json(
-      error.message || "Error al obtener los articulos",
+      { error: error.message || "Error al obtener los articulos" },
       { status: 500 }
     );
   }
