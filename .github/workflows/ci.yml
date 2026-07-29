@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        # Misma version que el XAMPP donde corre el sistema.
+        image: mariadb:10.4
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+          MARIADB_DATABASE: stock_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DATABASE_URL: "mysql://root@127.0.0.1:3306/stock_test"
+      TEST_DATABASE_URL: "mysql://root@127.0.0.1:3306/stock_test"
+      AUTH_SECRET: "secreto-de-ci-no-usar-en-produccion"
+      COOKIE_SECURE: "false"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # postinstall dispara prisma generate.
+      - run: npm ci
+
+      # Ademas de preparar la base, valida que prisma/migrations este bien
+      # armado: si el baseline quedo mal, el fallo aparece aca.
+      - run: npx prisma migrate deploy
+
+      - run: npm run lint
+
+      - run: npm test
+
+      # next build necesita DATABASE_URL aunque no consulte nada, porque
+      # src/lib/prisma.js instancia el cliente al importarse.
+      - run: npm run build
+
+  auditoria:
+    runs-on: ubuntu-latest
+    # Informativa: no bloquea el merge, pero deja el aviso a la vista.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=critical
