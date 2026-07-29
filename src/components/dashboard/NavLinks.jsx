@@ -1,68 +1,70 @@
+"use client";
 
-import { HomeIcon,BackpackIcon,CameraIcon,HandIcon, PersonIcon, ActivityLogIcon, SketchLogoIcon, ThickArrowRightIcon, DesktopIcon} from '@radix-ui/react-icons'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  ActivityLogIcon,
+  BackpackIcon,
+  DashboardIcon,
+  DesktopIcon,
+  GearIcon,
+  HandIcon,
+  IdCardIcon,
+  ListBulletIcon,
+  PersonIcon,
+  ReaderIcon,
+} from "@radix-ui/react-icons";
 
-import Link from 'next/link'
+import { listEntities } from "@/lib/entities";
+import LogoutButton from "./LogoutButton";
 
+const ICONOS = {
+  articulo: ActivityLogIcon,
+  equipo: DesktopIcon,
+  compra: BackpackIcon,
+  lista: ListBulletIcon,
+  entrega: HandIcon,
+  proveedor: PersonIcon,
+  empleado: IdCardIcon,
+  mantenimiento: GearIcon,
+  usuario: ReaderIcon,
+};
 
-  
-  // Map of links to display in the side navigation.
-  // Depending on the size of the application, this would be stored in a database.
+const ITEM =
+  "flex items-center gap-2 text-xl font-medium text-green-800 hover:bg-green-800 hover:text-slate-800 my-1 justify-center md:justify-start md:p-2 md:px-3";
+
+export default function NavLinks() {
+  const pathname = usePathname();
+
+  // Los enlaces salen del registro: agregar una entidad la pone en el menu
+  // sin tocar este archivo.
   const links = [
-    { name: 'Home',
-      href: '/', 
-      icon: HomeIcon
-    },
-    {
-      name: 'Articulos',
-      href: '/dashboard/articulo',
-      icon: ActivityLogIcon,
-    },
-    { 
-      name: 'Equipos', 
-        href: '/dashboard/equipo', 
-        icon: DesktopIcon },
-    
-    { 
-      name: 'Compras', 
-      href: '/dashboard/compra', 
-      icon: BackpackIcon },
-    { 
-      name: 'Entregas', 
-      href: '/dashboard/entrega', 
-      icon: HandIcon },
-    { 
-      name: 'Proveedores', 
-      href: '/dashboard/proveedor', 
-      icon: PersonIcon },
-   
+    { name: "Dashboard", href: "/dashboard", Icon: DashboardIcon },
+    ...listEntities().map((e) => ({
+      name: e.label.many,
+      href: `/dashboard/${e.name}`,
+      Icon: ICONOS[e.name] ?? ActivityLogIcon,
+    })),
   ];
-  
-  export default function NavLinks() {
-    return (
-      <div className='flex flex-col'>
-        
-        <section className='md:flex flex-col bg-slate-800 opacity-80 w-full h-screen justify-center rounded-md mb-10'>
-        
-          {links.map((link) => {
-            const LinkIcon = link.icon;
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="flex h-5vh grow text-green-800 text-xl items-center justify-center   font-medium hover:bg-green-800 hover:text-slate-800 my-2 md:flex-none md:justify-start md:p-2 md:px-3"
-              >
-                <LinkIcon className="w-6" />
-                <p className='hidden md:block'>{link.name}</p>
-                
-                
-              </Link>
-            );
-          })}
-            <Link href="/" className="mt-auto mb-1	flex h-5vh grow text-green-800 items-center justify-center  text-xl font-medium hover:bg-green-800 hover:text-slate-800 md:flex-none md:justify-start md:p-2 md:px-3">
-              <ThickArrowRightIcon className="w-6"/><p className='hidden md:block'>Salir</p>
-            </Link>
-        </section>
-      </div>
-     
-    );
-  }
+
+  return (
+    <nav className="flex flex-col bg-slate-800 opacity-90 w-full h-screen rounded-md py-4">
+      {links.map(({ name, href, Icon }) => {
+        const activo = pathname === href || pathname.startsWith(`${href}/`);
+        return (
+          <Link
+            key={href}
+            href={href}
+            aria-current={activo ? "page" : undefined}
+            className={`${ITEM} ${activo ? "bg-green-800 text-slate-900" : ""}`}
+          >
+            <Icon className="w-6" />
+            <span className="hidden md:block">{name}</span>
+          </Link>
+        );
+      })}
+
+      <LogoutButton className={`${ITEM} mt-auto w-full`} />
+    </nav>
+  );
+}

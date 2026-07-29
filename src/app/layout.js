@@ -1,11 +1,9 @@
 import '@/app/globals.css';
 
-
-import NavLinks from '@/components/dashboard/NavLinks';
-
-
-
-
+export const metadata = {
+  title: 'Gestión de Sistemas',
+  description: 'Gestión de stock, equipos y mantenimientos',
+};
 
 export default function RootLayout({ children }) {
   return (

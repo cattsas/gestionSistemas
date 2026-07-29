@@ -4,46 +4,48 @@ import { Button } from "@/components/ui/button";
 import PageTitle from "@/components/dashboard/PageTitle";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [usuario, setUsuario] = useState("");
   const [pass, setPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
-  /*************  ✨ Codeium Command ⭐  *************/
-  //Alterna la visibilidad del password
-  /******  7dea9a64-6c0e-42be-93c2-62ffc7224d22  *******/
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  // Función para manejar el envío del formulario
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Evita que el formulario se envíe de forma tradicional
+    e.preventDefault();
+    setError("");
+    setEnviando(true);
 
     try {
-      // Realiza la solicitud al servidor
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usuario, pass }),
       });
 
-      // Si la respuesta no es exitosa, lanza un error
+      const body = await response.json().catch(() => null);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error en la autenticación");
+        setError(body?.error?.message ?? "No se pudo iniciar sesión");
+        return;
       }
 
-      // Si la autenticación es exitosa, redirige al dashboard
-      window.location.href = "/dashboard";
-    } catch (error) {
-      // Muestra un mensaje de error si la autenticación falla
-      setError(error.message);
+      // Vuelve a donde el middleware lo intercepto, si venia de algun lado.
+      const destino = searchParams.get("next") || "/dashboard";
+      router.replace(destino);
+      router.refresh();
+    } catch {
+      setError("No se pudo contactar al servidor");
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -55,7 +57,7 @@ export default function Login() {
 
       <form
         onSubmit={handleSubmit}
-        className="antialiased  h-screenflex items-center justify-center align-center flex-col m-auto"
+        className="antialiased flex h-screen items-center justify-center flex-col m-auto"
       >
         <section className="w-full max-w-md flex flex-col ">
           <h1 className="text-4xl text-gray-300 font-bold text-center">
@@ -116,9 +118,10 @@ export default function Login() {
             <Button
               type="submit"
               variant="outline"
+              disabled={enviando}
               className="text-wrap text-gray-600 hover:bg-gray-600"
             >
-              Ingresar
+              {enviando ? "Ingresando…" : "Ingresar"}
             </Button>
           </div>
         </section>
