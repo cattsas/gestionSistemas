@@ -46,7 +46,13 @@ export async function sembrarBase() {
     },
   });
   await prisma.compra.create({
-    data: { id: 1, fecha: new Date("2026-02-01T00:00:00Z"), proveedor: 1, importe_total: 0 },
+    data: {
+      id: 1,
+      fecha: new Date("2026-02-01T00:00:00Z"),
+      nro_comprobante: "TEST-0001",
+      proveedor: 1,
+      importe_total: 0,
+    },
   });
 }
 

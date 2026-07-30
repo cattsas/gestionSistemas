@@ -21,10 +21,11 @@ model articulo {
 }
 
 model compra {
-  id            Int      @id @default(autoincrement())
-  fecha         DateTime @db.Date
-  proveedor     Int
-  importe_total Float    @db.Float
+  id              Int      @id @default(autoincrement())
+  fecha           DateTime @db.Date
+  nro_comprobante String   @db.VarChar(20)
+  proveedor       Int
+  importe_total   Float    @db.Float
 
   proveedorRef proveedor @relation(fields: [proveedor], references: [id], onUpdate: Restrict, map: "compra_ibfk_1")
   lineas       lista[]

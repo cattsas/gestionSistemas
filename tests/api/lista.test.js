@@ -57,7 +57,13 @@ describe("consistencia de totales", () => {
 
   it("mover una linea a otra compra actualiza las dos", async () => {
     await prisma.compra.create({
-      data: { id: 2, fecha: new Date("2026-02-02T00:00:00Z"), proveedor: 1, importe_total: 0 },
+      data: {
+        id: 2,
+        fecha: new Date("2026-02-02T00:00:00Z"),
+        nro_comprobante: "TEST-0002",
+        proveedor: 1,
+        importe_total: 0,
+      },
     });
     const { data } = await alta({ compra: 1, articulo: 1, cantidad: 2, precio_unitario: 500 });
 

@@ -14,6 +14,17 @@ const compra = {
       zod: z.coerce.date({ message: "Fecha inválida" }),
     },
     {
+      name: "nro_comprobante",
+      label: "Nro. de comprobante",
+      control: "text",
+      required: true,
+      zod: z
+        .string()
+        .trim()
+        .min(1, "Ingrese el número de comprobante")
+        .max(20, "Máximo 20 caracteres"),
+    },
+    {
       name: "proveedor",
       label: "Proveedor",
       control: "reference",
@@ -25,7 +36,7 @@ const compra = {
   // importe_total es una columna real, pero la mantiene el servidor a partir
   // de las lineas de la compra. El cliente nunca la escribe.
   computed: [{ name: "importe_total", label: "Importe total", type: "float" }],
-  list: ["id", "fecha", "proveedor", "importe_total"],
+  list: ["id", "fecha", "nro_comprobante", "proveedor", "importe_total"],
   hooks: {
     // Una compra recien creada todavia no tiene lineas.
     beforeWrite: (data, { mode }) =>

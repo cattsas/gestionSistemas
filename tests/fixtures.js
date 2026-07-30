@@ -38,8 +38,8 @@ export const CASOS = {
     invalido: { fecha: "no es fecha", tarea: "x", realizo: 0, observaciones: "" },
   },
   compra: {
-    valido: { fecha: "2026-03-20", proveedor: 1 },
-    invalido: { fecha: "ayer", proveedor: 0 },
+    valido: { fecha: "2026-03-20", nro_comprobante: "A-0001-00000001", proveedor: 1 },
+    invalido: { fecha: "ayer", nro_comprobante: "", proveedor: 0 },
   },
   lista: {
     valido: { compra: 1, articulo: 1, cantidad: 4, precio_unitario: 2500 },
