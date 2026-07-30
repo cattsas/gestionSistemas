@@ -50,7 +50,15 @@ export default function NavLinks() {
   return (
     <nav className="flex h-full w-full flex-col rounded-md bg-slate-800 opacity-90 py-4">
       {links.map(({ name, href, Icon }) => {
-        const activo = pathname === href || pathname.startsWith(`${href}/`);
+        // "/dashboard" es prefijo de TODAS las demas rutas
+        // ("/dashboard/articulo", "/dashboard/equipo", ...), asi que solo
+        // se marca activo con match exacto. Las demas entidades si aceptan
+        // sub-rutas propias (ej. "/dashboard/articulo/nuevo" resalta
+        // "Articulos").
+        const activo =
+          href === "/dashboard"
+            ? pathname === "/dashboard"
+            : pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
             key={href}
