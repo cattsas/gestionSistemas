@@ -40,7 +40,27 @@ import {
  * las opciones de las claves foraneas llegan ya resueltas desde el Server
  * Component: sin fetch en el cliente ni estado de carga.
  */
-export default function EntityForm({ entityName, initialData = null, options = {}, mode = "create" }) {
+export default function EntityForm({
+  entityName,
+  initialData = null,
+  options = {},
+  mode = "create",
+  // Campos que no se muestran ni se editan, pero viajan fijos en el submit
+  // (ej. la "compra" al cargar una linea desde el detalle de esa compra).
+  fixedValues = {},
+  // Si se define, reemplaza el destino por defecto tras un alta exitosa
+  // (`/dashboard/${entityName}`). Un string, no una funcion: EntityForm es
+  // Client Component y quien lo usa suele ser un Server Component, que no
+  // puede pasarle funciones como prop. Admite el placeholder "{id}", que se
+  // reemplaza por el id de la fila recien creada.
+  afterCreateRedirect,
+  submitLabel,
+  cancelHref,
+  // Los calculados se muestran por defecto (solo lectura) en modo edicion.
+  // Se puede apagar cuando ya se muestran en otro lado del layout, como el
+  // importe_total de compra junto a su tabla de lineas.
+  showComputed = true,
+}) {
   const entity = getEntity(entityName);
   const router = useRouter();
   const [errorGeneral, setErrorGeneral] = useState(null);
@@ -51,19 +71,22 @@ export default function EntityForm({ entityName, initialData = null, options = {
 
   const form = useForm({
     resolver: zodResolver(buildZodSchema(entity, modoValidacion)),
-    defaultValues: esAlta ? emptyValues(entity) : formValues(entity, initialData, modoValidacion),
+    defaultValues: esAlta
+      ? { ...emptyValues(entity), ...fixedValues }
+      : formValues(entity, initialData, modoValidacion),
   });
 
   async function onSubmit(values) {
     setErrorGeneral(null);
 
     const url = esAlta ? `/api/${entityName}` : `/api/${entityName}/${initialData.id}`;
+    const payload = { ...values, ...fixedValues };
 
     try {
       const res = await fetch(url, {
         method: esAlta ? "POST" : "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
       const body = await res.json().catch(() => null);
 
@@ -79,7 +102,11 @@ export default function EntityForm({ entityName, initialData = null, options = {
         return;
       }
 
-      router.push(`/dashboard/${entityName}`);
+      if (esAlta && afterCreateRedirect) {
+        router.push(afterCreateRedirect.replace("{id}", body?.data?.id));
+      } else {
+        router.push(`/dashboard/${entityName}`);
+      }
       router.refresh();
     } catch {
       setErrorGeneral("No se pudo contactar al servidor");
@@ -158,7 +185,7 @@ export default function EntityForm({ entityName, initialData = null, options = {
     }
   }
 
-  const campos = formFields(entity, modoValidacion);
+  const campos = formFields(entity, modoValidacion).filter((f) => !(f.name in fixedValues));
 
   return (
     <Form {...form}>
@@ -187,6 +214,7 @@ export default function EntityForm({ entityName, initialData = null, options = {
 
         {/* Los calculados se muestran pero no se editan: los mantiene el servidor. */}
         {!esAlta &&
+          showComputed &&
           (entity.computed ?? []).map((c) => (
             <div key={c.name} className="space-y-2">
               <span className="text-sm font-medium">{c.label}</span>
@@ -203,13 +231,13 @@ export default function EntityForm({ entityName, initialData = null, options = {
         <div className="flex gap-3 pt-2">
           {!soloLectura && (
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Guardando…" : "Guardar"}
+              {form.formState.isSubmitting ? "Guardando…" : submitLabel ?? "Guardar"}
             </Button>
           )}
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/dashboard/${entityName}`)}
+            onClick={() => router.push(cancelHref ?? `/dashboard/${entityName}`)}
           >
             {soloLectura ? "Volver" : "Cancelar"}
           </Button>
