@@ -51,10 +51,10 @@ export default function CompraDetalle({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Artículo</TableHead>
-            <TableHead className="text-right">Cantidad</TableHead>
-            <TableHead className="text-right">Precio unitario</TableHead>
-            <TableHead className="text-right">Precio total</TableHead>
+            <TableHead className="text-slate-200">Artículo</TableHead>
+            <TableHead className="text-right text-slate-200">Cantidad</TableHead>
+            <TableHead className="text-right text-slate-200">Precio unitario</TableHead>
+            <TableHead className="text-right text-slate-200">Precio total</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

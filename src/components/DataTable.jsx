@@ -74,11 +74,24 @@ function formatear(valor, tipo) {
   }
 }
 
-export function DataTable({ columns, data, end, emptyMessage = "No hay registros" }) {
+export function DataTable({
+  columns,
+  data,
+  end,
+  emptyMessage = "No hay registros",
+  currentUserId = null,
+}) {
   const router = useRouter();
   const [aBorrar, setABorrar] = useState(null);
   const [borrando, setBorrando] = useState(false);
   const [errorBorrado, setErrorBorrado] = useState(null);
+  // Borrar un usuario reautentica a quien esta logueado: antes de mostrar la
+  // confirmacion habitual, un primer paso pide esa contrasena via /api/reauth
+  // (que no borra nada). null = todavia no se paso ese paso.
+  const [passIngresada, setPassIngresada] = useState("");
+  const [passVerificada, setPassVerificada] = useState(null);
+  const [verificandoPass, setVerificandoPass] = useState(false);
+  const [errorReauth, setErrorReauth] = useState(null);
 
   // Los columnDef reales se construyen aca y no llegan por props: una funcion
   // `cell` no sobrevive el pasaje de Server Component a Client Component.
@@ -103,22 +116,30 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/${end}/${row.original.id}`} className="flex items-center gap-2">
-                <EyeOpenIcon /> Ver
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link
-                href={`/dashboard/${end}/${row.original.id}?editar=1`}
-                className="flex items-center gap-2"
-              >
-                <Pencil1Icon /> Editar
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            {/* Usuario no tiene Ver/Editar: no hay nada que mostrar aparte de
+                la contrasena, que nunca sale de la base, y cambiarla es un
+                alta nueva (el "editar" real seria pisarla, no corregirla). */}
+            {end !== "usuario" && (
+              <>
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/${end}/${row.original.id}`} className="flex items-center gap-2">
+                    <EyeOpenIcon /> Ver
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/dashboard/${end}/${row.original.id}?editar=1`}
+                    className="flex items-center gap-2"
+                  >
+                    <Pencil1Icon /> Editar
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem
               className="flex items-center gap-2 text-red-600 focus:text-red-600"
+              disabled={row.original.id === currentUserId}
               onSelect={(e) => {
                 e.preventDefault();
                 setErrorBorrado(null);
@@ -133,7 +154,7 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
     });
 
     return base;
-  }, [columns, end]);
+  }, [columns, end, currentUserId]);
 
   // El id no tiene sentido como criterio de busqueda: nadie busca un articulo
   // por su id, para eso ya esta la url.
@@ -169,12 +190,55 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  const requierePassword = end === "usuario";
+
+  function cerrarDialogoBorrado() {
+    setABorrar(null);
+    setErrorBorrado(null);
+    setPassIngresada("");
+    setPassVerificada(null);
+    setErrorReauth(null);
+  }
+
+  async function verificarPassBorrado(e) {
+    e.preventDefault();
+    setVerificandoPass(true);
+    setErrorReauth(null);
+    try {
+      const res = await fetch("/api/reauth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pass: passIngresada }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setErrorReauth(body?.error?.message ?? "Contraseña incorrecta");
+        return;
+      }
+
+      setPassVerificada(passIngresada);
+    } catch {
+      setErrorReauth("No se pudo contactar al servidor");
+    } finally {
+      setVerificandoPass(false);
+    }
+  }
+
   async function confirmarBorrado() {
     if (!aBorrar) return;
+    if (requierePassword && passVerificada === null) return;
+
     setBorrando(true);
     setErrorBorrado(null);
     try {
-      const res = await fetch(`/api/${end}/${aBorrar.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/${end}/${aBorrar.id}`, {
+        method: "DELETE",
+        ...(requierePassword && {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pass: passVerificada }),
+        }),
+      });
       const body = await res.json().catch(() => null);
 
       if (!res.ok) {
@@ -184,7 +248,7 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
         return;
       }
 
-      setABorrar(null);
+      cerrarDialogoBorrado();
       router.refresh();
     } catch {
       setErrorBorrado("No se pudo contactar al servidor");
@@ -282,7 +346,7 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-base text-slate-800">
             Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount() || 1}
           </span>
           <Button
@@ -304,13 +368,59 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
         </div>
       </section>
 
+      {/* Paso 1 (solo usuario): confirmar identidad antes de mostrar el
+          borrado en si. /api/reauth no borra nada, solo valida la contrasena
+          de quien esta logueado. */}
       <Dialog
-        open={aBorrar !== null}
+        open={aBorrar !== null && requierePassword && passVerificada === null}
+        onOpenChange={(abierto) => !abierto && cerrarDialogoBorrado()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmá tu identidad</DialogTitle>
+            <DialogDescription>
+              Ingresá tu contraseña para poder eliminar este usuario.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={verificarPassBorrado} className="space-y-4">
+            <Input
+              type="password"
+              autoComplete="current-password"
+              value={passIngresada}
+              onChange={(e) => setPassIngresada(e.target.value)}
+              autoFocus
+            />
+
+            {errorReauth && (
+              <p className="text-sm text-red-600" role="alert">
+                {errorReauth}
+              </p>
+            )}
+
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="text-accent-foreground"
+                onClick={cerrarDialogoBorrado}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={!passIngresada || verificandoPass}>
+                {verificandoPass ? "Verificando…" : "Continuar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Paso 2 (o unico paso, para el resto de las entidades): confirmacion
+          habitual antes de borrar. */}
+      <Dialog
+        open={aBorrar !== null && (!requierePassword || passVerificada !== null)}
         onOpenChange={(abierto) => {
-          if (!abierto && !borrando) {
-            setABorrar(null);
-            setErrorBorrado(null);
-          }
+          if (!abierto && !borrando) cerrarDialogoBorrado();
         }}
       >
         <DialogContent>
@@ -332,12 +442,18 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
             <Button
               type="button"
               variant="outline"
-              onClick={() => setABorrar(null)}
+              className="text-accent-foreground"
+              onClick={cerrarDialogoBorrado}
               disabled={borrando}
             >
               Cancelar
             </Button>
-            <Button type="button" variant="destructive" onClick={confirmarBorrado} disabled={borrando}>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmarBorrado}
+              disabled={borrando}
+            >
               {borrando ? "Eliminando…" : "Eliminar"}
             </Button>
           </DialogFooter>

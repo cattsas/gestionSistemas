@@ -2,7 +2,7 @@ import NavLinks from "@/components/dashboard/NavLinks";
 
 export default function RootLayout({ children }) {
   return (
-    <section className="flex h-screen w-full flex-row bg-gradient-to-r from-green-800 to-slate-700">
+    <section className="flex h-screen w-full flex-row bg-green-800">
       {/* shrink-0: nunca se achica aunque el contenido de al lado sea ancho.
           pt-28 (112px) = altura exacta de PageTitle (my-8 + text-5xl + my-8),
           para que la barra arranque alineada con el contenido, no con el
