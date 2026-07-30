@@ -5,6 +5,7 @@ const empleado = {
   model: "empleado",
   label: { one: "Empleado", many: "Empleados" },
   displayField: "nombre",
+  hideFromMenu: true,
   fields: [
     {
       name: "nombre",

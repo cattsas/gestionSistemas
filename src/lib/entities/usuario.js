@@ -5,6 +5,9 @@ const usuario = {
   model: "usuario",
   label: { one: "Usuario", many: "Usuarios" },
   displayField: "usuario",
+  // Sigue en el menu lateral (se administra desde ahi); solo se saca la
+  // tarjeta de conteo del dashboard.
+  hideFromDashboard: true,
   fields: [
     {
       name: "usuario",

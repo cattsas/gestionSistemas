@@ -12,16 +12,18 @@ export default async function Dashboard() {
       <PageTitle title="Dashboard" />
 
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-6 md:grid-cols-3">
-        {listEntities().map((entity) => (
-          <Link
-            key={entity.name}
-            href={`/dashboard/${entity.name}`}
-            className="rounded-lg border bg-white/70 p-4 transition hover:border-slate-400 hover:shadow-sm"
-          >
-            <p className="text-3xl font-bold text-slate-800">{conteos[entity.name]}</p>
-            <p className="text-sm text-slate-600">{entity.label.many}</p>
-          </Link>
-        ))}
+        {listEntities()
+          .filter((entity) => !entity.hideFromMenu && !entity.hideFromDashboard)
+          .map((entity) => (
+            <Link
+              key={entity.name}
+              href={`/dashboard/${entity.name}`}
+              className="rounded-lg border bg-white/70 p-4 transition hover:border-slate-400 hover:shadow-sm"
+            >
+              <p className="text-3xl font-bold text-slate-800">{conteos[entity.name]}</p>
+              <p className="text-sm text-slate-600">{entity.label.many}</p>
+            </Link>
+          ))}
       </div>
 
       <div className="mx-auto mt-8 max-w-5xl px-6">

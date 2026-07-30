@@ -40,11 +40,13 @@ export default function NavLinks() {
   // sin tocar este archivo.
   const links = [
     { name: "Dashboard", href: "/dashboard", Icon: DashboardIcon },
-    ...listEntities().map((e) => ({
-      name: e.label.many,
-      href: `/dashboard/${e.name}`,
-      Icon: ICONOS[e.name] ?? ActivityLogIcon,
-    })),
+    ...listEntities()
+      .filter((e) => !e.hideFromMenu)
+      .map((e) => ({
+        name: e.label.many,
+        href: `/dashboard/${e.name}`,
+        Icon: ICONOS[e.name] ?? ActivityLogIcon,
+      })),
   ];
 
   return (

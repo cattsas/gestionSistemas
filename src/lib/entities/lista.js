@@ -5,6 +5,9 @@ const lista = {
   model: "lista",
   label: { one: "Línea de compra", many: "Líneas de compra" },
   displayField: (row) => `Línea #${row.id}`,
+  // No tiene pantalla propia en el menu: se gestiona desde el detalle de la
+  // compra a la que pertenece.
+  hideFromMenu: true,
   fields: [
     {
       name: "compra",
