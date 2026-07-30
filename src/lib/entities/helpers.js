@@ -123,10 +123,11 @@ export function columnsFor(entity) {
   const porNombre = new Map(entity.fields.map((f) => [f.name, f]));
   const calculados = new Map((entity.computed ?? []).map((c) => [c.name, c]));
 
+  // El id no se muestra en la tabla: para operar sobre una fila estan las
+  // acciones (Ver/Editar/Borrar), no hace falta exponerlo como columna.
   return entity.list
+    .filter((name) => name !== "id")
     .map((name) => {
-      if (name === "id") return { accessorKey: "id", header: "ID", type: "number" };
-
       const f = porNombre.get(name);
       if (f) {
         return {

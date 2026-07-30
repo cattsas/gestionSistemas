@@ -4,11 +4,19 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
-import { EyeOpenIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CaretSortIcon,
+  EyeOpenIcon,
+  Pencil1Icon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -29,6 +37,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -76,6 +92,7 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
     base.push({
       id: "actions",
       header: "Acciones",
+      enableSorting: false,
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -118,10 +135,37 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
     return base;
   }, [columns, end]);
 
+  // El id no tiene sentido como criterio de busqueda: nadie busca un articulo
+  // por su id, para eso ya esta la url.
+  const camposBuscables = useMemo(
+    () => columns.filter((col) => col.accessorKey !== "id"),
+    [columns]
+  );
+
+  const [sorting, setSorting] = useState([]);
+  const [campoBusqueda, setCampoBusqueda] = useState(camposBuscables[0]?.accessorKey ?? "");
+  const [textoBusqueda, setTextoBusqueda] = useState("");
+
+  const datosFiltrados = useMemo(() => {
+    const termino = textoBusqueda.trim().toLowerCase();
+    if (!termino) return data;
+    return data.filter((row) =>
+      String(row[campoBusqueda] ?? "")
+        .toLowerCase()
+        .includes(termino)
+    );
+  }, [data, campoBusqueda, textoBusqueda]);
+
   const table = useReactTable({
-    data,
+    data: datosFiltrados,
     columns: columnDefs,
+    state: { sorting },
+    onSortingChange: setSorting,
+    // Sin esta opcion el tercer click saca el orden en vez de invertirlo: la
+    // flecha dejaria de tener sentido si pudiera desaparecer.
+    enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
@@ -151,16 +195,58 @@ export function DataTable({ columns, data, end, emptyMessage = "No hay registros
 
   return (
     <section>
-      <div className="rounded-md border overflow-x-auto">
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md bg-slate-800/60 p-3">
+        <label htmlFor={`buscar-campo-${end}`} className="text-sm font-medium text-gray-200">
+          Buscar por
+        </label>
+        <Select value={campoBusqueda} onValueChange={setCampoBusqueda}>
+          <SelectTrigger id={`buscar-campo-${end}`} className="w-48 bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {camposBuscables.map((col) => (
+              <SelectItem key={col.accessorKey} value={col.accessorKey}>
+                {col.header}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          value={textoBusqueda}
+          onChange={(e) => setTextoBusqueda(e.target.value)}
+          placeholder="Valor a buscar"
+          className="min-w-40 flex-1 bg-white"
+        />
+      </div>
+
+      <div className="rounded-md overflow-x-auto">
         <Table>
           <TableHeader className="bg-slate-800 opacity-90">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead className="text-gray-200" key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder ? null : (
+                      <div className="flex items-center gap-1">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getCanSort() && (
+                          <button
+                            type="button"
+                            onClick={header.column.getToggleSortingHandler()}
+                            className="text-gray-300 hover:text-white"
+                            aria-label="Ordenar"
+                          >
+                            {header.column.getIsSorted() === "asc" ? (
+                              <ArrowUpIcon />
+                            ) : header.column.getIsSorted() === "desc" ? (
+                              <ArrowDownIcon />
+                            ) : (
+                              <CaretSortIcon className="opacity-60" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
