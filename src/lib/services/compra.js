@@ -28,7 +28,10 @@ export async function getCompraDetalle(id) {
     importe_total: compra.importe_total,
     lineas: compra.lineas.map((l) => ({
       id: l.id,
-      articulo: l.articuloRef?.descripcion ?? null,
+      // El id real de la FK, no solo su etiqueta: hace falta para poder
+      // editar la linea (el <Select> de EntityForm bindea contra el id).
+      articulo: l.articulo,
+      articulo_label: l.articuloRef?.descripcion ?? null,
       cantidad: l.cantidad,
       precio_unitario: l.precio_unitario,
       precio_total: l.precio_total,

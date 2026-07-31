@@ -49,18 +49,27 @@ export default function EntityForm({
   // Campos que no se muestran ni se editan, pero viajan fijos en el submit
   // (ej. la "compra" al cargar una linea desde el detalle de esa compra).
   fixedValues = {},
-  // Si se define, reemplaza el destino por defecto tras un alta exitosa
-  // (`/dashboard/${entityName}`). Un string, no una funcion: EntityForm es
-  // Client Component y quien lo usa suele ser un Server Component, que no
-  // puede pasarle funciones como prop. Admite el placeholder "{id}", que se
-  // reemplaza por el id de la fila recien creada.
+  // Si se definen, reemplazan el destino por defecto tras un alta o una
+  // edicion exitosa (`/dashboard/${entityName}`). Strings, no funciones:
+  // EntityForm es Client Component y quien lo usa suele ser un Server
+  // Component, que no puede pasarle funciones como prop. Admiten el
+  // placeholder "{id}", que se reemplaza por el id de la fila.
   afterCreateRedirect,
+  afterUpdateRedirect,
   submitLabel,
   cancelHref,
   // Los calculados se muestran por defecto (solo lectura) en modo edicion.
   // Se puede apagar cuando ya se muestran en otro lado del layout, como el
   // importe_total de compra junto a su tabla de lineas.
   showComputed = true,
+  // Se llaman justo antes de navegar, en el submit exitoso y en el Cancelar
+  // respectivamente. A diferencia de afterCreateRedirect/afterUpdateRedirect
+  // son funciones de verdad: solo las pueden pasar otros Client Components
+  // (ej. LineasCompra, que las usa para salir del modo "editando" y volver a
+  // "agregar" — necesario porque cancelar o guardar puede navegar a la misma
+  // URL en la que ya se esta, y ese estado no se resetea solo).
+  onSuccess,
+  onCancel,
 }) {
   const entity = getEntity(entityName);
   const router = useRouter();
@@ -76,9 +85,14 @@ export default function EntityForm({
 
   const form = useForm({
     resolver: zodResolver(buildZodSchema(entity, modoValidacion)),
+    // fixedValues tambien tiene que ir en el default de edicion: un campo
+    // fijo (ej. "compra" al editar una linea) no se renderiza, asi que si su
+    // valor no viene de aca queda con lo que puso formValues para un campo
+    // ausente (el centinela de "sin asignar"), y si es requerido la
+    // validacion falla en silencio, sin nada que la muestre.
     defaultValues: esAlta
       ? { ...emptyValues(entity), ...fixedValues }
-      : formValues(entity, initialData, modoValidacion),
+      : { ...formValues(entity, initialData, modoValidacion), ...fixedValues },
   });
 
   async function onSubmit(values) {
@@ -107,11 +121,9 @@ export default function EntityForm({
         return;
       }
 
-      if (esAlta && afterCreateRedirect) {
-        router.push(afterCreateRedirect.replace("{id}", body?.data?.id));
-      } else {
-        router.push(`/dashboard/${entityName}`);
-      }
+      onSuccess?.(body?.data);
+      const destino = esAlta ? afterCreateRedirect : afterUpdateRedirect;
+      router.push((destino ?? `/dashboard/${entityName}`).replace("{id}", body?.data?.id));
       router.refresh();
     } catch {
       setErrorGeneral("No se pudo contactar al servidor");
@@ -347,7 +359,10 @@ export default function EntityForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(cancelHref ?? `/dashboard/${entityName}`)}
+            onClick={() => {
+              onCancel?.();
+              router.push(cancelHref ?? `/dashboard/${entityName}`);
+            }}
           >
             {soloLectura ? "Volver" : "Cancelar"}
           </Button>

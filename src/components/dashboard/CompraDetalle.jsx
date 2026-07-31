@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import EntityForm from "@/components/EntityForm";
+import LineasCompra from "@/components/dashboard/LineasCompra";
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -16,9 +16,9 @@ const fechaFmt = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString("es-AR"
 
 /**
  * Detalle de una compra: cabecera (subtitulo en modo ver, formulario editable
- * en modo editar) y la tabla de sus lineas. El alta de lineas nuevas solo se
- * ofrece al editar (o recien creada, que llega aca con editable=true): al
- * solo ver una compra ya cargada no tiene sentido seguir agregandole.
+ * en modo editar) y sus lineas. Al editar, las lineas se pueden agregar,
+ * editar y borrar (LineasCompra); al solo ver una compra ya cargada, la
+ * tabla es de solo lectura: no tiene sentido seguir tocandole las lineas.
  */
 export default function CompraDetalle({
   compra,
@@ -48,58 +48,37 @@ export default function CompraDetalle({
         </div>
       )}
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-slate-200">Artículo</TableHead>
-            <TableHead className="text-right text-slate-200">Cantidad</TableHead>
-            <TableHead className="text-right text-slate-200">Precio unitario</TableHead>
-            <TableHead className="text-right text-slate-200">Precio total</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {compra.lineas.length === 0 ? (
+      {editable ? (
+        <LineasCompra compra={compra} articuloOptions={articuloOptions} />
+      ) : (
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={4} className="text-center text-slate-400">
-                Esta compra todavía no tiene líneas cargadas.
-              </TableCell>
+              <TableHead className="text-slate-200">Artículo</TableHead>
+              <TableHead className="text-right text-slate-200">Cantidad</TableHead>
+              <TableHead className="text-right text-slate-200">Precio unitario</TableHead>
+              <TableHead className="text-right text-slate-200">Precio total</TableHead>
             </TableRow>
-          ) : (
-            compra.lineas.map((l) => (
-              <TableRow key={l.id}>
-                <TableCell>{l.articulo}</TableCell>
-                <TableCell className="text-right">{l.cantidad}</TableCell>
-                <TableCell className="text-right">{moneda.format(l.precio_unitario)}</TableCell>
-                <TableCell className="text-right">{moneda.format(l.precio_total)}</TableCell>
+          </TableHeader>
+          <TableBody>
+            {compra.lineas.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-slate-400">
+                  Esta compra todavía no tiene líneas cargadas.
+                </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-        {editable && (
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>Total</TableCell>
-              <TableCell className="text-right">{moneda.format(compra.importe_total)}</TableCell>
-            </TableRow>
-          </TableFooter>
-        )}
-      </Table>
-
-      {editable && (
-        <div>
-          <h2 className="mb-2 text-center text-base font-semibold text-slate-200">
-            Agregar línea
-          </h2>
-          <EntityForm
-            entityName="lista"
-            mode="create"
-            options={{ articulo: articuloOptions }}
-            fixedValues={{ compra: compra.id }}
-            afterCreateRedirect={`/dashboard/compra/${compra.id}?editar=1`}
-            cancelHref={`/dashboard/compra/${compra.id}?editar=1`}
-            submitLabel="Agregar línea"
-          />
-        </div>
+            ) : (
+              compra.lineas.map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell>{l.articulo_label}</TableCell>
+                  <TableCell className="text-right">{l.cantidad}</TableCell>
+                  <TableCell className="text-right">{moneda.format(l.precio_unitario)}</TableCell>
+                  <TableCell className="text-right">{moneda.format(l.precio_total)}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       )}
 
       {!editable && (
