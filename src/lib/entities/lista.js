@@ -23,6 +23,9 @@ const lista = {
       control: "reference",
       required: true,
       ref: { entity: "articulo", relation: "articuloRef" },
+      // Ademas de elegirlo del desplegable, se puede escribir directamente
+      // su codigo: si existe, selecciona ese articulo (ver EntityForm).
+      lookupByCode: true,
       zod: z.coerce.number().int().positive("Seleccione un artículo"),
     },
     {

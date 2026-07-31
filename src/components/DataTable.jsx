@@ -156,15 +156,10 @@ export function DataTable({
     return base;
   }, [columns, end, currentUserId]);
 
-  // El id no tiene sentido como criterio de busqueda: nadie busca un articulo
-  // por su id, para eso ya esta la url.
-  const camposBuscables = useMemo(
-    () => columns.filter((col) => col.accessorKey !== "id"),
-    [columns]
-  );
-
+  // "id" ya no esta siempre oculto: si una entidad lo declara a mano (como el
+  // "Código" de articulo) es una columna mas y tiene sentido buscar por el.
   const [sorting, setSorting] = useState([]);
-  const [campoBusqueda, setCampoBusqueda] = useState(camposBuscables[0]?.accessorKey ?? "");
+  const [campoBusqueda, setCampoBusqueda] = useState(columns[0]?.accessorKey ?? "");
   const [textoBusqueda, setTextoBusqueda] = useState("");
 
   const datosFiltrados = useMemo(() => {
@@ -268,7 +263,7 @@ export function DataTable({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {camposBuscables.map((col) => (
+            {columns.map((col) => (
               <SelectItem key={col.accessorKey} value={col.accessorKey}>
                 {col.header}
               </SelectItem>

@@ -54,6 +54,16 @@ describe("calculo de stock", () => {
     const mapa = await getStockMap();
 
     expect(mapa.get(1)).toBe(7);
-    expect(mapa.get(2)).toBeUndefined(); // sin movimientos: lo resuelve el ?? 0
+    // Todo articulo entra en el mapa aunque no tenga movimientos: parte de su
+    // stock_inicial (0 por default).
+    expect(mapa.get(2)).toBe(0);
+  });
+
+  it("el stock inicial cargado a mano suma al de compras y resta el de entregas", async () => {
+    await prisma.articulo.update({ where: { id: 1 }, data: { stock_inicial: 20 } });
+    await comprar(5);
+    await entregar();
+
+    await expect(getStockRestante(1)).resolves.toBe(24);
   });
 });

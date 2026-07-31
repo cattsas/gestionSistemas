@@ -8,10 +8,13 @@ datasource db {
 }
 
 model articulo {
-  id           Int                @id @default(autoincrement())
-  id_proveedor Int
-  descripcion  String             @db.VarChar(50)
-  categoria    articulo_categoria @default(otros)
+  id            Int                @id @default(autoincrement())
+  id_proveedor  Int
+  descripcion   String             @db.VarChar(50)
+  categoria     articulo_categoria @default(otros)
+  // Punto de partida del stock calculado (compras - entregas). Se carga una
+  // sola vez, al alta manual del articulo; despues el stock se mueve solo.
+  stock_inicial Int                @default(0)
 
   proveedor proveedor @relation(fields: [id_proveedor], references: [id], onUpdate: Restrict, map: "articulo_ibfk_1")
   entregas  entrega[]

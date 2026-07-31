@@ -70,8 +70,11 @@ export function handleError(error, { label = "registro", id } = {}) {
     case "P2025":
       return fail("NOT_FOUND", `No se encontró ${label}${id != null ? ` con id ${id}` : ""}`);
     case "P2002": {
+      // MySQL identifica la violacion por el nombre del indice, no de la
+      // columna: para la clave primaria eso es literalmente "PRIMARY".
       const campo = [].concat(error.meta?.target ?? []).join(", ");
-      return fail("CONFLICT", campo ? `Ya existe un registro con ese ${campo}` : "El registro ya existe");
+      const etiqueta = campo === "PRIMARY" ? "id" : campo;
+      return fail("CONFLICT", etiqueta ? `Ya existe un registro con ese ${etiqueta}` : "El registro ya existe");
     }
     case "P2003":
       return fail(

@@ -123,10 +123,13 @@ export function columnsFor(entity) {
   const porNombre = new Map(entity.fields.map((f) => [f.name, f]));
   const calculados = new Map((entity.computed ?? []).map((c) => [c.name, c]));
 
-  // El id no se muestra en la tabla: para operar sobre una fila estan las
-  // acciones (Ver/Editar/Borrar), no hace falta exponerlo como columna.
+  // El id no se muestra en la tabla por defecto: para operar sobre una fila
+  // estan las acciones (Ver/Editar/Borrar), no hace falta exponerlo como
+  // columna. La excepcion es una entidad que declara "id" a mano en sus
+  // fields (como el "Código" de articulo): ahi si tiene un significado
+  // propio para el usuario y se muestra.
   return entity.list
-    .filter((name) => name !== "id")
+    .filter((name) => name !== "id" || porNombre.has("id"))
     .map((name) => {
       const f = porNombre.get(name);
       if (f) {

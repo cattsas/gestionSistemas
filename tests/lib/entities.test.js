@@ -55,7 +55,19 @@ describe("registro de entidades", () => {
 });
 
 describe("pickWritable", () => {
-  it("descarta etiquetas, calculados, el id y cualquier campo de mas", () => {
+  it("descarta etiquetas, calculados, el id (si la entidad no lo declara) y cualquier campo de mas", () => {
+    const entity = getEntity("empleado");
+    const data = pickWritable(entity, {
+      id: 7,
+      nombre: "Ana",
+      sector: "Compras",
+      loQueSea: true,
+    });
+
+    expect(data).toEqual({ nombre: "Ana", sector: "Compras" });
+  });
+
+  it("en articulo el id ('código') se puede cargar a mano al alta, no se descarta", () => {
     const entity = getEntity("articulo");
     const data = pickWritable(entity, {
       id: 7,
@@ -67,6 +79,22 @@ describe("pickWritable", () => {
       cantidad: 5,
       loQueSea: true,
     });
+
+    expect(data).toEqual({
+      id: 7,
+      descripcion: "Fuente",
+      categoria: "fuentes",
+      id_proveedor: 2,
+    });
+  });
+
+  it("en articulo, editar (no alta) sigue descartando el id: es createOnly", () => {
+    const entity = getEntity("articulo");
+    const data = pickWritable(
+      entity,
+      { id: 7, descripcion: "Fuente", categoria: "fuentes", id_proveedor: 2 },
+      "update"
+    );
 
     expect(data).toEqual({ descripcion: "Fuente", categoria: "fuentes", id_proveedor: 2 });
   });
