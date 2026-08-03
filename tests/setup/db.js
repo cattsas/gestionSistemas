@@ -15,11 +15,15 @@ const TABLAS = [
 ];
 
 export async function limpiarBase() {
-  await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 0");
-  for (const tabla of TABLAS) {
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE \`${tabla}\``);
-  }
-  await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1");
+  // FOREIGN_KEY_CHECKS es una variable de sesion: si cada $executeRawUnsafe
+  // tomara una conexion distinta del pool, el SET de una no afectaria a los
+  // TRUNCATE de otra. $transaction fija una sola conexion para todo el
+  // bloque, así que quedan todos en la misma sesión.
+  await prisma.$transaction([
+    prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 0"),
+    ...TABLAS.map((tabla) => prisma.$executeRawUnsafe(`TRUNCATE TABLE \`${tabla}\``)),
+    prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1"),
+  ]);
 }
 
 /**
