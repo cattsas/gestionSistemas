@@ -70,6 +70,10 @@ const equipo = {
       control: "reference",
       required: false,
       ref: { entity: "mantenimiento", relation: "mantenimientoRef" },
+      // Al ver un equipo, un boton debajo lleva al detalle completo de ese
+      // mantenimiento (lo mismo que se ve al elegir "Ver" en su propia
+      // tabla), en vez de solo la etiqueta truncada del <select>.
+      viewDetailLink: true,
       zod: z.coerce.number().int().positive().optional().nullable(),
     },
     {

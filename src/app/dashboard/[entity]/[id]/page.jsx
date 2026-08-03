@@ -8,7 +8,15 @@ import { getCompraDetalle } from "@/lib/services/compra";
 
 export default async function DetalleEntidad({ params, searchParams }) {
   const { entity, id } = await params;
-  const { editar } = await searchParams;
+  const { editar, origen } = await searchParams;
+  // Si se llego aca desde el boton "Ver detalle" de otra entidad (ver
+  // EntityForm), "Volver" tiene que volver a esa pantalla y no al listado.
+  // "origen" es un query param, asi que cualquiera puede armar el link a
+  // mano: solo se acepta una ruta interna, nunca una URL externa.
+  const cancelHref =
+    typeof origen === "string" && origen.startsWith("/dashboard/") && !origen.includes("://")
+      ? origen
+      : undefined;
 
   const descriptor = getEntity(entity);
   if (!descriptor) notFound();
@@ -75,6 +83,7 @@ export default async function DetalleEntidad({ params, searchParams }) {
         initialData={registro}
         options={options}
         mode={modo}
+        cancelHref={cancelHref}
       />
     </section>
   );

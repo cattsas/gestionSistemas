@@ -281,22 +281,45 @@ export default function EntityForm({
           </Select>
         );
 
-        if (!f.lookupByCode || !esAlta) return select;
+        if (f.lookupByCode && esAlta) {
+          // Ademas del desplegable, un campo aparte para elegir escribiendo
+          // el codigo del registro referenciado.
+          return (
+            <div className="space-y-2">
+              <Input
+                type="number"
+                step="1"
+                placeholder="Buscar por código"
+                disabled={disabled}
+                onBlur={(e) => buscarReferenciaPorCodigo(f, e.target.value)}
+              />
+              {select}
+            </div>
+          );
+        }
 
-        // Ademas del desplegable, un campo aparte para elegir escribiendo el
-        // codigo del registro referenciado.
-        return (
-          <div className="space-y-2">
-            <Input
-              type="number"
-              step="1"
-              placeholder="Buscar por código"
-              disabled={disabled}
-              onBlur={(e) => buscarReferenciaPorCodigo(f, e.target.value)}
-            />
-            {select}
-          </div>
-        );
+        if (f.viewDetailLink && soloLectura && field.value && field.value !== SIN_VALOR) {
+          // Al ver, un boton lleva al detalle completo del registro
+          // referenciado en vez de quedarse con su etiqueta truncada. Viaja
+          // con el origen para que el "Volver" de esa pantalla, en vez de ir
+          // a su listado, vuelva aca.
+          const origen = encodeURIComponent(`/dashboard/${entityName}/${initialData.id}`);
+          return (
+            <div className="space-y-2">
+              {select}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/dashboard/${f.ref.entity}/${field.value}?origen=${origen}`)}
+              >
+                Ver detalle
+              </Button>
+            </div>
+          );
+        }
+
+        return select;
       }
 
       default:
